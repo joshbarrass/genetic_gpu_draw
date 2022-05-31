@@ -9,6 +9,7 @@
 #include "images/image.h"
 #include "main_class.h"
 #include "shaderClass.h"
+#include "triangles/constants.h"
 #include "triangles/collection.h"
 #include "progressBar.h"
 #include "rand.h"
@@ -95,28 +96,30 @@ int Main::run() {
 
   #ifdef BUILD_DEBUG
   Triangles.PrintVBOContents();
-  float t1[12];
+  float t1[TRIANGLE_STRIDE];
   Triangles.GetTriangle(0, t1);
   {
     using namespace std;
     for (int v = 0; v < 3; ++v) {
       cout << "v" << v << ": ";
       for (int i = 0; i < 3; ++i) {
-        cout << t1[4*v + i] << ",";
+        cout << t1[VERTEX_STRIDE*v + i] << ",";
       }
-      cout << " Alpha: " << t1[4*v + 3] << endl;
+      cout << " Alpha: " << t1[VERTEX_STRIDE*v + 3];
+      cout << ", COM: " << t1[VERTEX_STRIDE*v + 4] << "," << t1[VERTEX_STRIDE*v + 5] << endl;
     }
   }
-  float t2[12];
+  float t2[TRIANGLE_STRIDE];
   Triangles.GetTriangle(1, t2);
   {
     using namespace std;
     for (int v = 0; v < 3; ++v) {
       cout << "v" << v << ": ";
       for (int i = 0; i < 3; ++i) {
-        cout << t2[4*v + i] << ",";
+        cout << t2[VERTEX_STRIDE*v + i] << ",";
       }
-      cout << " Alpha: " << t2[4*v + 3] << endl;
+      cout << " Alpha: " << t2[VERTEX_STRIDE*v + 3];
+      cout << ", COM: " << t2[VERTEX_STRIDE*v + 4] << "," << t2[VERTEX_STRIDE*v + 5] << endl;
     }
   }
   #endif

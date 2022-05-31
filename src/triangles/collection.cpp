@@ -18,6 +18,7 @@ TriangleCollection::TriangleCollection(const int n) : fNumTriangles(n) {
   glEnableVertexAttribArray(0);
   glVertexAttribPointer(1, 1, GL_FLOAT, GL_FALSE, VERTEX_STRIDE*sizeof(float), (void*)(sizeof(float)*3));
   glEnableVertexAttribArray(1);
+  glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, VERTEX_STRIDE*sizeof(float), (void*)(sizeof(float)*(3+1)));
   glBindVertexArray(0);
 }
 
