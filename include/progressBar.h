@@ -18,6 +18,9 @@ public:
   }
   void Display();
   void SetShowRaw(bool v) { fShowRaw = v; }
+  double GetValue() {
+    return fValue;
+  }
 
 private:
   double fValue;
