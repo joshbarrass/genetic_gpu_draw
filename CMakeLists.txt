@@ -42,6 +42,21 @@ link_directories(${X11_LIBRARIES})
 file(GLOB sources ${PROJECT_SOURCE_DIR}/src/*.cpp ${PROJECT_SOURCE_DIR}/src/images/*.cpp ${PROJECT_SOURCE_DIR}/src/triangles/*.cpp)
 file(GLOB headers ${PROJECT_SOURCE_DIR}/include/*.h ${PROJECT_SOURCE_DIR}/include/images/*.h ${PROJECT_SOURCE_DIR}/include/triangles/*.h)
 
+# copy shaders to build dir
+message(STATUS "Copying shaders to build dir")
+SET(shader_dir ${PROJECT_SOURCE_DIR}/shaders)
+file(GLOB shaders RELATIVE ${shader_dir} ${shader_dir}/*.glsl)
+foreach(shader ${shaders})
+  set(srcShaderPath ${shader_dir}/${shader})
+  if(NOT IS_DIRECTORY ${srcShaderPath})
+    message(STATUS "  Copying ${shader}")
+    configure_file(
+      ${srcShaderPath}
+      shaders/${shader}
+      COPYONLY)
+  endif(NOT IS_DIRECTORY ${srcShaderPath})
+endforeach(shader)
+
 # add executable
 add_executable(drawer drawer.cpp ${sources} ${headers})
 

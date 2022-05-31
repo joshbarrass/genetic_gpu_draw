@@ -11,6 +11,12 @@ public:
   void SetTriangleVisibility(int, bool);
   void RandomiseAll();
   void RandomiseAll(bool);
+
+  void GetTriangle(int, float*);
+
+  void Draw();
+
+  void PrintVBOContents();
 private:
   float *fTriangles;
   int fNumTriangles;

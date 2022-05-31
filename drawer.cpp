@@ -9,7 +9,7 @@
 #include "images/image.h"
 #include "main_class.h"
 #include "shaderClass.h"
-#include "triangle.h"
+#include "triangles/collection.h"
 #include "progressBar.h"
 
 constexpr int PROGRESS_BAR_SIZE = 30;
@@ -79,32 +79,70 @@ int Main::run() {
   /* register callback */
   glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
 
-  /* construct vertices for a scalene triangle -- this has no
-     rotational symmetry*/
-  // float vertices[6] =
-  //   {
-  //     -0.5f, -0.33333333f,
-  //     0.75f, -0.33333333f,
-  //     -0.25f, 0.66666667f
-  //   };
-  // construct Triangle object
-  // Triangle scalene(vertices);
+  /* build a collection of triangles */
+  // TODO: use number of triangles specified on cmdline
+  TriangleCollection Triangles(2);
+  Triangles.RandomiseAll(false);
+  Triangles.SetTriangleVisibility(0, true);
+  Triangles.UpdateBuffer();
+
+  #ifdef BUILD_DEBUG
+  Triangles.PrintVBOContents();
+  float t1[12];
+  Triangles.GetTriangle(0, t1);
+  {
+    using namespace std;
+    for (int v = 0; v < 3; ++v) {
+      cout << "v" << v << ": ";
+      for (int i = 0; i < 3; ++i) {
+        cout << t1[4*v + i] << ",";
+      }
+      cout << " Alpha: " << t1[4*v + 3] << endl;
+    }
+  }
+  float t2[12];
+  Triangles.GetTriangle(1, t2);
+  {
+    using namespace std;
+    for (int v = 0; v < 3; ++v) {
+      cout << "v" << v << ": ";
+      for (int i = 0; i < 3; ++i) {
+        cout << t2[4*v + i] << ",";
+      }
+      cout << " Alpha: " << t2[4*v + 3] << endl;
+    }
+  }
+  #endif
 
   // build the shader program
-  // Shader simpleShader("./shaders/simpleVertShader.glsl", "./shaders/simpleFragShader.glsl");
+  Shader simpleShader("./shaders/simpleVertShader.glsl", "./shaders/simpleFragShader.glsl");
+  simpleShader.set3Vec("triColor", 1, 0, 0);
 
   glClearColorArray(INITIAL_WINDOW_COLOR);
+  glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+  glEnable( GL_BLEND );
+
+  // glDisable(GL_DEPTH_TEST);
+  // glDisable(GL_CULL_FACE);
+  // glDisable(GL_ALPHA_TEST);
   
   // wait in a basic loop
   while (!glfwWindowShouldClose(window) && !shouldStartRendering) {
     process_input(window);
     glClear(GL_COLOR_BUFFER_BIT);
+
+    simpleShader.use();
+    simpleShader.set3Vec("triColor", 0, 1, 0);
+    Triangles.Draw();
+    
     glfwSwapBuffers(window);
     glfwPollEvents();
   }
   if (glfwWindowShouldClose(window)) {
     return 0;
   }
+
+  std::cout << "No problems" << std::endl;
 
   ProgressBar pbar(PROGRESS_BAR_SIZE, 0, ITERATIONS, true);
   while (pbar.GetValue() < ITERATIONS && !glfwWindowShouldClose(window)) {
@@ -123,13 +161,9 @@ int Main::run() {
 
     glClear(GL_COLOR_BUFFER_BIT);
 
-    // use our shader to draw our vertices as a triangle
-    // simpleShader.use();
-    // simpleShader.set3Vec("triColor", brightness, brightness, brightness);
-    // simpleShader.setFloat("theta", angle * M_PI / 180.);
-    // simpleShader.setFloat("xDisp", xDisp);
-    // simpleShader.setFloat("yDisp", yDisp);
-    // scalene.Draw();
+    // draw the collection
+    simpleShader.use();
+    Triangles.Draw();
 
     glfwSwapBuffers(window);
     glfwPollEvents();
@@ -137,6 +171,8 @@ int Main::run() {
     pbar.Display();
   }
   std::cerr << std::endl;
+
+  std::cout << "Still no problems" << std::endl;
 
   Image output(window);
   output.Save(OUT_FILE);
@@ -150,5 +186,5 @@ int main(int argc, char **argv) {
   if (int err = program.parseArgs(argc, argv); err != 0) {
     return err;
   }
-  program.run();
+  return program.run();
 }
