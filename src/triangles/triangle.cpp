@@ -1,7 +1,7 @@
 #include <algorithm>
 #include <iostream>
 
-#include "triangle.h"
+#include "triangles/triangle.h"
 
 // constexpr int perCoord = 2;
 // constexpr int arrayLength = 3*perCoord;

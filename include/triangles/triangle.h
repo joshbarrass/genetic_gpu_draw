@@ -6,7 +6,7 @@ private:
   float fCOM[2];
   float fVertices[9];
 public:
-  Triangle(const float vertiecs[9]);
+  Triangle(const float vertices[9]);
   ~Triangle() {};
 };
 
