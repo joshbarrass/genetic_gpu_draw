@@ -1,17 +1,10 @@
 #include <algorithm>
+#include "triangles/constants.h"
 #include "triangles/collection.h"
+#include "triangles/triangle.h"
 #include "rand.h"
 
 #include <iostream>
-
-// number of values per triangle
-// currently 12:
-//   0, 4, 8: x-coord
-//   1, 5, 9: y-coord
-//   2, 6, 10: z-coord
-//   3, 7, 11: enable? (bool)
-constexpr int VERTEX_STRIDE = 4;
-constexpr int TRIANGLE_STRIDE = VERTEX_STRIDE * 3;
 
 TriangleCollection::TriangleCollection(const int n) : fNumTriangles(n) {
   fTriangles = new float[n*TRIANGLE_STRIDE];
@@ -69,14 +62,8 @@ void TriangleCollection::RandomiseAll(bool visible) {
 
   for (int i = 0; i < fNumTriangles; ++i) {
     int triangle = i * TRIANGLE_STRIDE;
-    for (int v = 0; v < 3; ++v) {
-      int triangleVertex = triangle + VERTEX_STRIDE * v;
-      for (int mu = 0; mu < 2; ++mu) {
-        fTriangles[triangleVertex + mu] = randFloat(-1, 1);
-      }
-      fTriangles[triangleVertex + 2] = i * zStep + minZ;
-      fTriangles[triangleVertex + 3] = alpha;
-    }
+    Triangle t(i * zStep + minZ);
+    t.GetArray(&fTriangles[triangle], alpha);
   }
 }
 
