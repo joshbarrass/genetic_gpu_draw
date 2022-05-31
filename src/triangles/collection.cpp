@@ -48,7 +48,6 @@ void TriangleCollection::SetTriangleVisibility(int i, bool visible) {
 }
 
 void TriangleCollection::RandomiseAll(bool visible) {
-  // TODO: These values aren't utilised properly
   constexpr float minZ = (-0.95);
   constexpr float maxZ = 0.95;
   float zStep = (maxZ - minZ) / (fNumTriangles-1);
