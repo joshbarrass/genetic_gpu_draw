@@ -7,6 +7,7 @@
 #include <GLFW/glfw3.h>
 
 #include "images/image.h"
+#include "textureClass.h"
 #include "main_class.h"
 #include "shaderClass.h"
 #include "triangles/constants.h"
@@ -53,11 +54,15 @@ int Main::run() {
   std::cerr << "Seed: " << SEED << std::endl;
   seed(SEED);
   
-  // load the target image
-  Image target(IMAGE_FILE);
-  int WINDOW_WIDTH = target.GetWidth();
-  int WINDOW_HEIGHT = target.GetHeight();
-  
+  // load the target image to get the width
+  int WINDOW_WIDTH;
+  int WINDOW_HEIGHT;
+  {
+    Image im(IMAGE_FILE);
+    WINDOW_WIDTH = im.GetWidth();
+    WINDOW_HEIGHT = im.GetHeight();
+  }
+
   /* initialise a GLFW window (LearnOpenGL 4) */
   glfwInit();
 
@@ -87,6 +92,10 @@ int Main::run() {
 
   /* register callback */
   glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
+
+  // load the image as a texture for use in the shader
+  Texture target(IMAGE_FILE.c_str(), GL_RGB, GL_RGB);
+  constexpr GLuint targetUnitNumber = 0;
 
   /* build a collection of triangles */
   TriangleCollection Triangles(ITERATIONS);
@@ -126,7 +135,6 @@ int Main::run() {
 
   // build the shader program
   Shader simpleShader("./shaders/simpleVertShader.glsl", "./shaders/simpleFragShader.glsl");
-  simpleShader.set3Vec("triColor", 1, 0, 0);
 
   glClearColorArray(INITIAL_WINDOW_COLOR);
   glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
@@ -148,7 +156,6 @@ int Main::run() {
   }
 
   simpleShader.use();
-  simpleShader.set3Vec("triColor", 1, 0, 0);
 
   ProgressBar pbar(PROGRESS_BAR_SIZE, 0, ITERATIONS, true);
   int i = pbar.GetValue();
@@ -168,6 +175,8 @@ int Main::run() {
 
     // draw the collection
     simpleShader.use();
+    target.Use(targetUnitNumber);
+    simpleShader.setInt("target_image", targetUnitNumber);
     Triangles.Draw();
 
     glfwPollEvents();
