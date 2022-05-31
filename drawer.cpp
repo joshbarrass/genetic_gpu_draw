@@ -11,6 +11,7 @@
 #include "shaderClass.h"
 #include "triangles/collection.h"
 #include "progressBar.h"
+#include "rand.h"
 
 constexpr int PROGRESS_BAR_SIZE = 30;
 
@@ -44,6 +45,13 @@ void Main::process_input(GLFWwindow *window) {
   glClearColor(color[0] / 255., color[1] / 255., color[2] / 255., color[3] / 255.)
 
 int Main::run() {
+  // seed rng
+  if (!set_seed) {
+    SEED = time(0);
+  }
+  std::cerr << "Seed: " << SEED << std::endl;
+  seed(SEED);
+  
   // load the target image
   Image target(IMAGE_FILE);
   int WINDOW_WIDTH = target.GetWidth();
@@ -80,8 +88,7 @@ int Main::run() {
   glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
 
   /* build a collection of triangles */
-  // TODO: use number of triangles specified on cmdline
-  TriangleCollection Triangles(2);
+  TriangleCollection Triangles(ITERATIONS);
   Triangles.RandomiseAll(false);
   Triangles.SetTriangleVisibility(0, true);
   Triangles.UpdateBuffer();
@@ -130,11 +137,6 @@ int Main::run() {
   while (!glfwWindowShouldClose(window) && !shouldStartRendering) {
     process_input(window);
     glClear(GL_COLOR_BUFFER_BIT);
-
-    simpleShader.use();
-    simpleShader.set3Vec("triColor", 0, 1, 0);
-    Triangles.Draw();
-    
     glfwSwapBuffers(window);
     glfwPollEvents();
   }
@@ -142,10 +144,12 @@ int Main::run() {
     return 0;
   }
 
-  std::cout << "No problems" << std::endl;
+  simpleShader.use();
+  simpleShader.set3Vec("triColor", 1, 0, 0);
 
   ProgressBar pbar(PROGRESS_BAR_SIZE, 0, ITERATIONS, true);
-  while (pbar.GetValue() < ITERATIONS && !glfwWindowShouldClose(window)) {
+  int i = pbar.GetValue();
+  while (i < ITERATIONS && !glfwWindowShouldClose(window)) {
     // check for premature exit
     if (FINISH_NOW) {
       // exit via the built-in method; admittedly it shouldn't make a
@@ -153,26 +157,23 @@ int Main::run() {
       glfwSetWindowShouldClose(window, true);
       continue;
     }
-
-    // generate the displacements
-    // float xDisp;
-    // float yDisp;
-    // scalene.GenerateDisplacements(xDisp, yDisp);
-
     glClear(GL_COLOR_BUFFER_BIT);
+
+    // enable the next triangle
+    Triangles.SetTriangleVisibility(i, true);
+    Triangles.UpdateBuffer();
 
     // draw the collection
     simpleShader.use();
     Triangles.Draw();
 
-    glfwSwapBuffers(window);
     glfwPollEvents();
     ++pbar;
     pbar.Display();
+    i = pbar.GetValue();
   }
   std::cerr << std::endl;
-
-  std::cout << "Still no problems" << std::endl;
+  glfwSwapBuffers(window);
 
   Image output(window);
   output.Save(OUT_FILE);

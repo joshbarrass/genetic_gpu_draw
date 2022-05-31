@@ -30,7 +30,7 @@ TriangleCollection::TriangleCollection(const int n) : fNumTriangles(n) {
 
 void TriangleCollection::UpdateBuffer() {
   glBindBuffer(GL_ARRAY_BUFFER, VBO);
-  glBufferData(GL_ARRAY_BUFFER, sizeof(float)*fNumTriangles*TRIANGLE_STRIDE, &fTriangles[0], GL_STATIC_DRAW);
+  glBufferData(GL_ARRAY_BUFFER, sizeof(float)*fNumTriangles*TRIANGLE_STRIDE, &fTriangles[0], GL_DYNAMIC_DRAW);
 }
 
 TriangleCollection::~TriangleCollection() { delete[] fTriangles; }
@@ -56,9 +56,9 @@ void TriangleCollection::SetTriangleVisibility(int i, bool visible) {
 
 void TriangleCollection::RandomiseAll(bool visible) {
   // TODO: These values aren't utilised properly
-  constexpr float minZ = (-0.5);
-  constexpr float maxZ = 0.5;
-  float zStep = (maxZ - minZ) / fNumTriangles;
+  constexpr float minZ = (-0.95);
+  constexpr float maxZ = 0.95;
+  float zStep = (maxZ - minZ) / (fNumTriangles-1);
 
   float alpha;
   if (visible) {
