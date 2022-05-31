@@ -6,6 +6,8 @@
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 
+#include "images/image.h"
+#include "main_class.h"
 #include "shaderClass.h"
 #include "triangle.h"
 #include "progressBar.h"
@@ -15,7 +17,8 @@ constexpr int PROGRESS_BAR_SIZE = 30;
 // uint8_t WINDOW_COLOR[4] = {0xdd, 0xcc, 0xff, 0xff};
 const double INITIAL_WINDOW_COLOR[4] = {0x00/255., 0x00/255., 0x00/255., 0xff/255.};
 
-bool shouldStartRendering = false;
+Main::Main() : set_image_file(false), set_out_file(false), set_iterations(false), IMAGES_PER_GENERATION(1), set_resume_file(false), set_seed(false), FINISH_NOW(false), shouldStartRendering(false) {}
+Main::~Main() {}
 
 // callback to resize the framebuffer if the user resizes the window
 void framebuffer_size_callback(GLFWwindow *window, int width, int height) {
@@ -23,7 +26,7 @@ void framebuffer_size_callback(GLFWwindow *window, int width, int height) {
 }
 
 // respond to input
-void process_input(GLFWwindow *window) {
+void Main::process_input(GLFWwindow *window) {
   // exit on ESC
   if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS) {
     glfwSetWindowShouldClose(window, GLFW_TRUE);
@@ -40,9 +43,12 @@ void process_input(GLFWwindow *window) {
 #define glClearColorByteArray(color) \
   glClearColor(color[0] / 255., color[1] / 255., color[2] / 255., color[3] / 255.)
 
-// generate xDisp and yDisp
-
-int main() {
+int Main::run() {
+  // load the target image
+  Image target(IMAGE_FILE);
+  int WINDOW_WIDTH = target.GetWidth();
+  int WINDOW_HEIGHT = target.GetHeight();
+  
   /* initialise a GLFW window (LearnOpenGL 4) */
   glfwInit();
 
@@ -100,43 +106,49 @@ int main() {
     return 0;
   }
 
-  ProgressBar pbar(PROGRESS_BAR_SIZE, 0, numrots*numPerRot, true);
-  for (int i = 0; i < numrots; ++i) {
+  ProgressBar pbar(PROGRESS_BAR_SIZE, 0, ITERATIONS, true);
+  while (pbar.GetValue() < ITERATIONS && !glfwWindowShouldClose(window)) {
     // check for premature exit
-    if (glfwWindowShouldClose(window)) {
-      return 0;
+    if (FINISH_NOW) {
+      // exit via the built-in method; admittedly it shouldn't make a
+      // difference
+      glfwSetWindowShouldClose(window, true);
+      continue;
     }
-    
-    float angle = (minrot + step*i);
 
-    // generate multiple images for each angle
-    for (int j = 0; j < numPerRot; ++j) {
-      // generate the displacements
-      float xDisp;
-      float yDisp;
-      scalene.GenerateDisplacements(xDisp, yDisp);
+    // generate the displacements
+    // float xDisp;
+    // float yDisp;
+    // scalene.GenerateDisplacements(xDisp, yDisp);
 
-      glClear(GL_COLOR_BUFFER_BIT);
+    glClear(GL_COLOR_BUFFER_BIT);
 
-      // use our shader to draw our vertices as a triangle
-      // simpleShader.use();
-      // simpleShader.set3Vec("triColor", brightness, brightness, brightness);
-      // simpleShader.setFloat("theta", angle * M_PI / 180.);
-      // simpleShader.setFloat("xDisp", xDisp);
-      // simpleShader.setFloat("yDisp", yDisp);
-      // scalene.Draw();
+    // use our shader to draw our vertices as a triangle
+    // simpleShader.use();
+    // simpleShader.set3Vec("triColor", brightness, brightness, brightness);
+    // simpleShader.setFloat("theta", angle * M_PI / 180.);
+    // simpleShader.setFloat("xDisp", xDisp);
+    // simpleShader.setFloat("yDisp", yDisp);
+    // scalene.Draw();
 
-      save_image(window, (fileName).c_str());
-
-      glfwSwapBuffers(window);
-      glfwPollEvents();
-      ++pbar;
-      trainBar.Display();
-    }
+    glfwSwapBuffers(window);
+    glfwPollEvents();
+    ++pbar;
+    pbar.Display();
   }
   std::cerr << std::endl;
 
+  Image output(window);
+  output.Save(OUT_FILE);
+
   glfwTerminate();
-  std::cerr << std::endl;
   return 0;
+}
+
+int main(int argc, char **argv) {
+  Main program = Main();;
+  if (int err = program.parseArgs(argc, argv); err != 0) {
+    return err;
+  }
+  program.run();
 }
