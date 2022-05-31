@@ -1,6 +1,6 @@
 # Setup project
 cmake_minimum_required(VERSION 3.10 FATAL_ERROR)
-project(Genetic_Image_Draw)
+project(Genetic_GPU_Draw)
 
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
@@ -22,18 +22,6 @@ IF (ENABLE_PROFILING)
   SET(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} -pg")
 ENDIF()
 
-# allow OpenMP
-OPTION (USE_OpenMP "Use OpenMP" ON)
-IF(USE_OpenMP)
-  FIND_PACKAGE(OpenMP)
-  IF(OPENMP_FOUND)
-    SET(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${OpenMP_C_FLAGS}")
-    SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${OpenMP_CXX_FLAGS}")
-    add_compile_definitions(cimg_use_openmp=1)
-    add_compile_definitions(USE_OPENMP=1)
-  ENDIF()
-ENDIF()
-
 # testing new error function
 OPTION (USE_OLD_ERR "Use old error function instead of dot product-based one" OFF)
 IF(USE_OLD_ERR)
@@ -51,12 +39,12 @@ link_directories(${PROJECT_SOURCE_DIR}/lib)
 link_directories(${X11_LIBRARIES})
 
 # add sources and headers
-file(GLOB sources ${PROJECT_SOURCE_DIR}/src/*.cpp)
-file(GLOB headers ${PROJECT_SOURCE_DIR}/include/*.h)
+file(GLOB sources ${PROJECT_SOURCE_DIR}/src/*.cpp ${PROJECT_SOURCE_DIR}/src/images/*.cpp)
+file(GLOB headers ${PROJECT_SOURCE_DIR}/include/*.h ${PROJECT_SOURCE_DIR}/src/images/*.h)
 
 # add executable
 add_executable(drawer drawer.cpp ${sources} ${headers})
 
 # add libraries
-set(CIMG_LIBS X11 pthread)
-target_link_libraries(drawer ${CIMG_LIBS})
+set(GLFW_LIBS X11 rt m dl pthread)
+target_link_libraries(drawer glfw ${GLFW_LIBS})
