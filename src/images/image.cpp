@@ -7,7 +7,7 @@ Image::~Image() {
   if (fUsedStb) {
     stbi_image_free(fImageData);
   } else {
-    delete fImageData;
+    delete[] fImageData;
   }
 }
 
