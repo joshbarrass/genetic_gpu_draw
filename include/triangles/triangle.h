@@ -1,8 +1,6 @@
 #ifndef TRIANGLE_CLASS_H
 #define TRIANGLE_CLASS_H 1
 
-#include <glad/glad.h>
-
 class Triangle {
 private:
   float fCOM[2];
