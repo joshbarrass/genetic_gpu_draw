@@ -1,13 +1,21 @@
-#include "images/save.h"
+#include "images/image.h"
 #include <GLFW/glfw3.h>
 #include <stb/stb_image_write.h>
 
-void save_image(GLFWwindow *window, const char *fn) {
-  int width, height;
-  glfwGetWindowSize(window, &width, &height);
-  GLubyte *pixels = new GLubyte[3*width*height];
-  glPixelStorei(GL_PACK_ALIGNMENT, 1);
-  glReadPixels(0, 0, width, height, GL_RGB, GL_UNSIGNED_BYTE, pixels);
-  stbi_flip_vertically_on_write(true);
-  stbi_write_png(fn, width, height, 3, pixels, 3*width);
+// TODO: other channel counts?
+void Image::save_image(const char *filename) {
+  stbi_flip_vertically_on_write(FlipVerticallyOnWrite);
+  stbi_write_png(filename, fWidth, fHeight, 3, fImageData, 3*fWidth);
+}
+
+void Image::Save(const char *filename) {
+  save_image(filename);
+}
+
+void Image::Save(const std::string filename) {
+  save_image(filename.c_str());
+}
+
+void Image::Save(const std::filesystem::path filename) {
+  save_image(filename.u8string().c_str());
 }
