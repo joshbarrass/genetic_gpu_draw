@@ -11,6 +11,10 @@ public:
   ~FramebufferTexture();
 
   void Use();
+  int GetWidth() const { return fWidth; }
+  int GetHeight() const { return fHeight; }
+  GLuint GetTex() const { return Tex; }
+
 private:
   int fWidth;
   int fHeight;

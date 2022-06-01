@@ -12,7 +12,7 @@ FramebufferTexture::FramebufferTexture(int width, int height) : fWidth(width), f
   glBindTexture(GL_TEXTURE_2D, Tex);
 
   // create an empty image
-  glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, 0);
+  glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, 0);
 
   // reduce filtering (required)
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
@@ -35,6 +35,8 @@ FramebufferTexture::FramebufferTexture(int width, int height) : fWidth(width), f
     throw ERR_COULD_NOT_MAKE_FRAMEBUFFER;
   }
 }
+
+FramebufferTexture::~FramebufferTexture() {}
 
 void FramebufferTexture::Use() {
   // Render to our framebuffer

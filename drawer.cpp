@@ -8,6 +8,7 @@
 
 #include "images/image.h"
 #include "textureClass.h"
+#include "framebuffer.h"
 #include "main_class.h"
 #include "shaderClass.h"
 #include "triangles/constants.h"
@@ -157,6 +158,9 @@ int Main::run() {
 
   simpleShader.use();
 
+  FramebufferTexture canvas(WINDOW_WIDTH, WINDOW_HEIGHT);
+  canvas.Use();
+
   ProgressBar pbar(PROGRESS_BAR_SIZE, 0, ITERATIONS, true);
   int i = pbar.GetValue();
   while (i < ITERATIONS && !glfwWindowShouldClose(window)) {
@@ -189,6 +193,9 @@ int Main::run() {
 
   Image output(window);
   output.Save(OUT_FILE);
+
+  Image fboutput(canvas);
+  fboutput.Save("FRAMEBUFFER.png");
 
   glfwTerminate();
   return 0;
