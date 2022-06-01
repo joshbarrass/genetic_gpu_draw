@@ -71,6 +71,7 @@ int Main::run() {
   glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
   glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
   glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+  glfwWindowHint(GLFW_VISIBLE, GLFW_FALSE);
 
   // create the window
   GLFWwindow *window = glfwCreateWindow(WINDOW_WIDTH, WINDOW_HEIGHT, "Genetic GPU Draw", NULL, NULL);
@@ -146,15 +147,15 @@ int Main::run() {
   // glDisable(GL_ALPHA_TEST);
   
   // wait in a basic loop
-  while (!glfwWindowShouldClose(window) && !shouldStartRendering) {
-    process_input(window);
-    glClear(GL_COLOR_BUFFER_BIT);
-    glfwSwapBuffers(window);
-    glfwPollEvents();
-  }
-  if (glfwWindowShouldClose(window)) {
-    return 0;
-  }
+  // while (!glfwWindowShouldClose(window) && !shouldStartRendering) {
+  //   process_input(window);
+  //   glClear(GL_COLOR_BUFFER_BIT);
+  //   glfwSwapBuffers(window);
+  //   glfwPollEvents();
+  // }
+  // if (glfwWindowShouldClose(window)) {
+  //   return 0;
+  // }
 
   simpleShader.use();
 
@@ -189,13 +190,10 @@ int Main::run() {
     i = pbar.GetValue();
   }
   std::cerr << std::endl;
-  glfwSwapBuffers(window);
-
-  Image output(window);
-  output.Save(OUT_FILE);
+  // glfwSwapBuffers(window);
 
   Image fboutput(canvas);
-  fboutput.Save("FRAMEBUFFER.png");
+  fboutput.Save(OUT_FILE);
 
   glfwTerminate();
   return 0;
