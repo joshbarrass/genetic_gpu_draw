@@ -192,7 +192,9 @@ int Main::run() {
   std::cerr << std::endl;
   // glfwSwapBuffers(window);
 
+  std::cerr << "Copying canvas to CPU..." << std::endl;
   Image fboutput(canvas);
+  std::cerr << "Saving..." << std::endl;
   fboutput.Save(OUT_FILE);
 
   glfwTerminate();
@@ -204,5 +206,6 @@ int main(int argc, char **argv) {
   if (int err = program.parseArgs(argc, argv); err != 0) {
     return err;
   }
+  program.register_signal_callback();
   return program.run();
 }
