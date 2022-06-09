@@ -6,18 +6,17 @@
 Texture::Texture(const char *texturePath, const GLenum srcColorScheme, const GLenum destColorScheme) : haveGivenUnitWarning(false) {
   // load the image data
   stbi_set_flip_vertically_on_load(true);
-  int channels = 0;
   switch (srcColorScheme) {
   case GL_RGB:
-    channels = 3;
+    nChannels = 3;
     break;
   case GL_RGBA:
-    channels = 4;
+    nChannels = 4;
     break;
   default:
     break;
   }
-  unsigned char *data = stbi_load(texturePath, &width, &height, &nChannels, 0);
+  unsigned char *data = stbi_load(texturePath, &width, &height, 0, nChannels);
   if (!data) {
     std::cerr << "ERROR::TEXTURE::LOADING\nFailed to load texture file '" << texturePath << "'" << std::endl;
   }
