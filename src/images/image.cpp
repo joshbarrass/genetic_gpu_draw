@@ -46,6 +46,9 @@ Image::Image(const FramebufferTexture fbtex) {
   fHeight = fbtex.GetHeight();
   fImageData = new GLubyte[3*fWidth*fHeight];
 
+  // ensure that the images are not aligned to any boundaries
+  // this may introduce padding, which will corrupt the buffer
+  glPixelStorei(GL_PACK_ALIGNMENT, 1);
   glBindTexture(GL_TEXTURE_2D, fbtex.GetTex());
   glGetTexImage(GL_TEXTURE_2D, 0, GL_RGB, GL_UNSIGNED_BYTE, fImageData);
 
