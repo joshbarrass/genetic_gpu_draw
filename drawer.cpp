@@ -184,6 +184,8 @@ int Main::run() {
     simpleShader.setInt("target_image", targetUnitNumber);
     Triangles.Draw();
 
+    // glFlush();
+
     glfwPollEvents();
     ++pbar;
     pbar.Display();
@@ -192,6 +194,8 @@ int Main::run() {
   std::cerr << std::endl;
   // glfwSwapBuffers(window);
 
+  std::cerr << "Waiting for rendering to complete..." << std::endl;
+  glFinish();
   std::cerr << "Copying canvas to CPU..." << std::endl;
   Image fboutput(canvas);
   std::cerr << "Saving..." << std::endl;
