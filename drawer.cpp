@@ -136,7 +136,7 @@ int Main::run() {
   #endif
 
   // build the shader program
-  Shader simpleShader("./shaders/simpleVertShader.glsl", "./shaders/simpleFragShader.glsl");
+  Shader simpleShader("./shaders/triangle_vert_shader.glsl", "./shaders/simpleFragShader.glsl");
 
   glClearColorArray(INITIAL_WINDOW_COLOR);
   glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
