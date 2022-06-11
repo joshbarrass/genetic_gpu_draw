@@ -10,8 +10,16 @@ public:
   ErrorFn(Texture &target, Texture &canvas);
   ~ErrorFn();
 private:
+  void DrawQuad();
+  void RunDifferenceShader();
+  
+  ///////////
+  
   Texture &fTarget;
   Texture &fCanvas;
+
+  GLuint VAO;
+  GLuint VBO;
 
   FramebufferTexture fPixelDifferences; // used to calculate the difference for each pixel
   bool fSumColumns;
