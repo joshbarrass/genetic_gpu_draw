@@ -167,6 +167,8 @@ int Main::run() {
   FramebufferTexture canvas(WINDOW_WIDTH, WINDOW_HEIGHT);
   canvas.Use();
 
+  ErrorFn errorFunction(target, canvas);
+
   ProgressBar pbar(PROGRESS_BAR_SIZE, 0, ITERATIONS, true);
   int i = pbar.GetValue();
   while (i < ITERATIONS && !glfwWindowShouldClose(window)) {
@@ -189,7 +191,12 @@ int Main::run() {
     simpleShader.setInt("target_image", targetUnitNumber);
     Triangles.Draw();
 
-    // glFlush();
+    // TODO: calculate the error; for now, this just checks for
+    // interference
+    errorFunction.Run();
+    // error function changes the active framebuffer, so we must
+    // enable the canvas again
+    canvas.Use();
 
     glfwPollEvents();
     ++pbar;
@@ -210,10 +217,6 @@ int Main::run() {
   /////////////
   // Testing //
   /////////////
-  ErrorFn errorFunction(
-                        /* target image */ target,
-                        /* canvas */ canvas
-                        );
   errorFunction.Run();
   GLuint diffTexID = errorFunction.GetDiffTexID();
   int errWidth = errorFunction.GetWidth();
