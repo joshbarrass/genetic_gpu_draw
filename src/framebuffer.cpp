@@ -1,6 +1,9 @@
 #include "framebuffer.h"
 #include <stdexcept>
 
+// do nothing; used as a null initialiser
+FramebufferTexture::FramebufferTexture() : fWidth(0), fHeight(0) {}
+
 // will also bind the new framebuffer!
 FramebufferTexture::FramebufferTexture(int width, int height) : fWidth(width), fHeight(height) {
   // create and bind the new framebuffer

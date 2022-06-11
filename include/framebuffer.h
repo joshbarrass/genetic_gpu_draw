@@ -8,6 +8,7 @@ constexpr int ERR_COULD_NOT_MAKE_FRAMEBUFFER = 10;
 class FramebufferTexture {
 public:
   FramebufferTexture(int, int);
+  FramebufferTexture();
   ~FramebufferTexture();
 
   void Use();
