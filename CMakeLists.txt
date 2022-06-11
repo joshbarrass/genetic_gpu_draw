@@ -39,8 +39,8 @@ link_directories(${PROJECT_SOURCE_DIR}/lib)
 link_directories(${X11_LIBRARIES})
 
 # add sources and headers
-file(GLOB sources ${PROJECT_SOURCE_DIR}/src/*.cpp ${PROJECT_SOURCE_DIR}/src/images/*.cpp ${PROJECT_SOURCE_DIR}/src/triangles/*.cpp)
-file(GLOB headers ${PROJECT_SOURCE_DIR}/include/*.h ${PROJECT_SOURCE_DIR}/include/images/*.h ${PROJECT_SOURCE_DIR}/include/triangles/*.h)
+file(GLOB sources ${PROJECT_SOURCE_DIR}/src/*.cpp ${PROJECT_SOURCE_DIR}/src/images/*.cpp ${PROJECT_SOURCE_DIR}/src/triangles/*.cpp ${PROJECT_SOURCE_DIR}/src/images/*.cpp ${PROJECT_SOURCE_DIR}/src/errorfn/*.cpp)
+file(GLOB headers ${PROJECT_SOURCE_DIR}/include/*.h ${PROJECT_SOURCE_DIR}/include/images/*.h ${PROJECT_SOURCE_DIR}/include/triangles/*.h ${PROJECT_SOURCE_DIR}/src/images/*.h ${PROJECT_SOURCE_DIR}/src/errorfn/*.h)
 
 # copy shaders to build dir
 message(STATUS "Copying shaders to build dir")
