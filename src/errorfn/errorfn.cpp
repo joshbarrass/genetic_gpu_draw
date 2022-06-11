@@ -17,7 +17,7 @@ ErrorFn::~ErrorFn() {}
 
 ErrorFn::ErrorFn(Texture & target, FramebufferTexture &canvas)
   : fTarget(target),
-    fCanvas(canvas), fPixelDifferences(), fSummed(), fDifferenceShader("shaders/simpleVertShader.glsl", "shaders/summing_shader.glsl") {
+    fCanvas(canvas), fPixelDifferences(), fSummed(), fDifferenceShader("shaders/simpleVertShader.glsl", "shaders/difference_shader.glsl") {
   // create VBO and VAO
   glGenBuffers(1, &VBO);
   glGenVertexArrays(1, &VAO);
