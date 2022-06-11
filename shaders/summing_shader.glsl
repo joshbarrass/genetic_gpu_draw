@@ -2,12 +2,14 @@
 
 layout(location = 0) out vec4 TexColor;
 
-uniform Texture2D target;
-uniform Texture2D canvas;
+uniform sampler2D target;
+uniform sampler2D canvas;
+uniform vec2 screen_size;
 
 void main() {
-     vec3 targetColor = texture(target, gl_FragCoord.xy).xyz;
-     vec3 canvasColor = texture(canvas, gl_FragCoord.xy).xyz;
-     vec3 diff = targetColor - canvasColor;
-     TexColor = vec4(diff.dot(diff), 0.0, 0.0, 1.0);
+     vec2 uv = (gl_FragCoord.xy) / screen_size;
+     vec3 targetColor = texture(target, uv).xyz;
+     vec3 canvasColor = texture(canvas, uv).xyz;
+     vec3 diff = canvasColor - targetColor;
+     TexColor = vec4(dot(diff, diff), 0.0, 0.0, 1.0);
 }
