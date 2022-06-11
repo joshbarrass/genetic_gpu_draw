@@ -15,6 +15,11 @@
 #include "triangles/collection.h"
 #include "progressBar.h"
 #include "rand.h"
+#include "errorfn/errorfn.h"
+
+#ifdef BUILD_DEBUG
+#include <stb/stb_image_write.h>
+#endif
 
 constexpr int PROGRESS_BAR_SIZE = 30;
 
@@ -201,8 +206,44 @@ int Main::run() {
   std::cerr << "Saving..." << std::endl;
   fboutput.Save(OUT_FILE);
 
+  #ifdef BUILD_DEBUG
+  /////////////
+  // Testing //
+  /////////////
+  ErrorFn errorFunction(
+                        /* target image */ target,
+                        /* canvas */ canvas
+                        );
+  errorFunction.Run();
+  GLuint diffTexID = errorFunction.GetDiffTexID();
+  int errWidth = errorFunction.GetWidth();
+  int errHeight = errorFunction.GetHeight();
+  GLfloat *errImageData = new GLfloat[4*errWidth*errHeight];
+  GLuint *errImageDataToSave = new GLuint[3*errWidth*errHeight];
+
+  // dump the difference texture
+  glPixelStorei(GL_PACK_ALIGNMENT, 1);
+  glBindTexture(GL_TEXTURE_2D, diffTexID);
+  glGetTexImage(GL_TEXTURE_2D, 0, GL_RGBA, GL_FLOAT, errImageData);
+  glGetTexImage(GL_TEXTURE_2D, 0, GL_RGB, GL_UNSIGNED_BYTE, errImageDataToSave);
+
+  float max_error = 0;
+  for (int i = 0; i < 4 * errWidth * errHeight; i+=4) {
+    using namespace std;
+    cerr << errImageData[i] << " ";
+    if (errImageData[i] > max_error) {
+      max_error = errImageData[i];
+    }
+  }
+  std::cerr << std::endl;
+  std::cerr << "Max error: " << max_error << std::endl;
+  stbi_flip_vertically_on_write(true);
+  stbi_write_png("errImage.png", errWidth, errHeight, 3, errImageDataToSave, 3*errWidth);
+  #endif
+
   glfwTerminate();
   return 0;
+  
 }
 
 int main(int argc, char **argv) {
