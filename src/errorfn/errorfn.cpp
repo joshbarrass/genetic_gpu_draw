@@ -1,5 +1,6 @@
 #include "errorfn/errorfn.h"
 #include "framebuffer.h"
+#include "consts.h"
 
 // quad that fills the screen
 const float quadVerts[] = {
@@ -68,8 +69,8 @@ void ErrorFn::RunDifferenceShader() {
   // enable the shader
   fDifferenceShader.use();
   // bind the textures
-  const GLuint targetUnitNumber = 0;
-  const GLuint canvasUnitNumber = 1;
+  const GLuint targetUnitNumber = targetImageUnitNumber;
+  const GLuint canvasUnitNumber = canvasImageUnitNumber;
   fTarget.Use(targetUnitNumber);
   // bind canvas texture manually
   glActiveTexture(GL_TEXTURE0 + canvasUnitNumber);

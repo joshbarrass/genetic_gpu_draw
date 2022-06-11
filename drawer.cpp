@@ -15,6 +15,7 @@
 #include "triangles/collection.h"
 #include "progressBar.h"
 #include "rand.h"
+#include "consts.h"
 #include "errorfn/errorfn.h"
 
 #ifdef BUILD_DEBUG
@@ -102,7 +103,7 @@ int Main::run() {
 
   // load the image as a texture for use in the shader
   Texture target(IMAGE_FILE.c_str(), GL_RGB, GL_RGB);
-  constexpr GLuint targetUnitNumber = 0;
+  constexpr GLuint targetUnitNumber = targetImageUnitNumber;
 
   /* build a collection of triangles */
   TriangleCollection Triangles(ITERATIONS);
