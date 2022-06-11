@@ -39,6 +39,7 @@ FramebufferTexture::FramebufferTexture(int width, int height, GLuint texFormat) 
   }
 }
 
+// TODO:
 FramebufferTexture::~FramebufferTexture() {}
 
 void FramebufferTexture::Use() {
