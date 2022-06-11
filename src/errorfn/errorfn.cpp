@@ -12,7 +12,10 @@ const float quadVerts[] = {
   1.0, 1.0 // top right
 };
 
-ErrorFn::ErrorFn(Texture & target, Texture &canvas)
+// TODO:
+ErrorFn::~ErrorFn() {}
+
+ErrorFn::ErrorFn(Texture & target, FramebufferTexture &canvas)
   : fTarget(target),
     fCanvas(canvas), fPixelDifferences(), fSummed(), fDifferenceShader("shaders/simpleVertShader.glsl", "shaders/summing_shader.glsl") {
   // create VBO and VAO
@@ -32,7 +35,9 @@ ErrorFn::ErrorFn(Texture & target, Texture &canvas)
   // this is required for the error function to work properly
   int w = target.GetWidth();
   int h = target.GetHeight();
-  fPixelDifferences = FramebufferTexture(target.GetWidth(), target.GetHeight());
+  // must use GL_RGBA32F here to get sufficient precision and to
+  // bypass clamping
+  fPixelDifferences = FramebufferTexture(target.GetWidth(), target.GetHeight(), GL_RGBA32F);
 
   // if the image is wider than it is tall, summing the rows into a
   // single column will be better
@@ -45,7 +50,7 @@ ErrorFn::ErrorFn(Texture & target, Texture &canvas)
   }
 
   // create second framebuffer to act as the shortest axis array
-  fSummed = FramebufferTexture(shortestAxis, 1);
+  fSummed = FramebufferTexture(shortestAxis, 1, GL_RGBA32F);
 
   // TODO: create a shader that sums distances to a single row
 }
@@ -62,8 +67,16 @@ void ErrorFn::RunDifferenceShader() {
 
   // enable the shader
   fDifferenceShader.use();
-  fDifferenceShader.setInt("target", fTarget.GetID());
-  fDifferenceShader.setInt("canvas", fCanvas.GetID());
+  // bind the textures
+  const GLuint targetUnitNumber = 0;
+  const GLuint canvasUnitNumber = 1;
+  fTarget.Use(targetUnitNumber);
+  // bind canvas texture manually
+  glActiveTexture(GL_TEXTURE0 + canvasUnitNumber);
+  glBindTexture(GL_TEXTURE_2D, fCanvas.GetTex());
+  fDifferenceShader.setInt("target", targetUnitNumber);
+  fDifferenceShader.setInt("canvas", canvasUnitNumber);
+  fDifferenceShader.set2Vec("screen_size", this->GetWidth(), this->GetHeight());
 
   DrawQuad();
   // each pixel in framebuffer should now be the difference

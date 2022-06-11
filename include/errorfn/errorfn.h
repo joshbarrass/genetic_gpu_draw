@@ -7,8 +7,15 @@
 
 class ErrorFn {
 public:
-  ErrorFn(Texture &target, Texture &canvas);
+  ErrorFn(Texture &target, FramebufferTexture &canvas);
   ~ErrorFn();
+
+  int GetWidth() const { return fTarget.GetWidth(); }
+  int GetHeight() const { return fTarget.GetHeight(); }
+  GLuint GetDiffTexID() const { return fPixelDifferences.GetTex(); }
+
+  void Run() { RunDifferenceShader(); } // TODO: remove
+
 private:
   void DrawQuad();
   void RunDifferenceShader();
@@ -16,7 +23,7 @@ private:
   ///////////
   
   Texture &fTarget;
-  Texture &fCanvas;
+  FramebufferTexture &fCanvas;
 
   GLuint VAO;
   GLuint VBO;

@@ -5,7 +5,7 @@
 FramebufferTexture::FramebufferTexture() : fWidth(0), fHeight(0) {}
 
 // will also bind the new framebuffer!
-FramebufferTexture::FramebufferTexture(int width, int height) : fWidth(width), fHeight(height) {
+FramebufferTexture::FramebufferTexture(int width, int height, GLuint texFormat) : fWidth(width), fHeight(height) {
   // create and bind the new framebuffer
   glGenFramebuffers(1, &FBO);
   glBindFramebuffer(GL_FRAMEBUFFER, FBO);
@@ -15,7 +15,7 @@ FramebufferTexture::FramebufferTexture(int width, int height) : fWidth(width), f
   glBindTexture(GL_TEXTURE_2D, Tex);
 
   // create an empty image
-  glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, 0);
+  glTexImage2D(GL_TEXTURE_2D, 0, texFormat, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, 0);
 
   // reduce filtering (required)
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);

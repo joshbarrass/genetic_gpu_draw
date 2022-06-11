@@ -7,7 +7,7 @@ constexpr int ERR_COULD_NOT_MAKE_FRAMEBUFFER = 10;
 
 class FramebufferTexture {
 public:
-  FramebufferTexture(int, int);
+  FramebufferTexture(int width, int height, GLuint texFormat=GL_RGBA);
   FramebufferTexture();
   ~FramebufferTexture();
 
