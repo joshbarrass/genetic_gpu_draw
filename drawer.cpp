@@ -202,7 +202,7 @@ int Main::run() {
       // triangle did not improve the error
       // generate a new triangle to replace it, and skip incrementing i
       Triangles.Randomise_i(i);
-      Triangles.UpdateBuffer();
+      Triangles.UpdateBuffer(i);
       continue;
     }
     

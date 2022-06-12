@@ -8,6 +8,7 @@ public:
   TriangleCollection(const int n);
   ~TriangleCollection();
   void UpdateBuffer();
+  void UpdateBuffer(const int);
   void RandomiseAll();
   void Randomise_i(int);
 

@@ -29,6 +29,13 @@ void TriangleCollection::UpdateBuffer() {
   glBufferData(GL_ARRAY_BUFFER, sizeof(float)*fNumTriangles*TRIANGLE_STRIDE, &fTriangles[0], GL_DYNAMIC_DRAW);
 }
 
+// update only one triangle
+void TriangleCollection::UpdateBuffer(const int i) {
+  int triangle = i * TRIANGLE_STRIDE;
+  glBindBuffer(GL_ARRAY_BUFFER, VBO);
+  glBufferSubData(GL_ARRAY_BUFFER, triangle*sizeof(float), sizeof(float)*TRIANGLE_STRIDE, &fTriangles[triangle]);
+}
+
 TriangleCollection::~TriangleCollection() { delete[] fTriangles; }
 
 void TriangleCollection::RandomiseAll() {
