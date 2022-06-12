@@ -5,10 +5,9 @@
 //   0: x-coord
 //   1: y-coord
 //   2: z-coord
-//   3: alpha
-//   4: COM x-coord
-//   5: COM y-coord
-constexpr int VERTEX_STRIDE = 6;
+//   3: COM x-coord
+//   4: COM y-coord
+constexpr int VERTEX_STRIDE = 5;
 constexpr int TRIANGLE_STRIDE = VERTEX_STRIDE * 3;
 
 #endif

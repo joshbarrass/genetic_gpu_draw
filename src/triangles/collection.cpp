@@ -19,10 +19,8 @@ TriangleCollection::TriangleCollection(const int n) : fNumTriangles(n) {
   glBindBuffer(GL_ARRAY_BUFFER, VBO);
   glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, VERTEX_STRIDE*sizeof(float), (void*)0);
   glEnableVertexAttribArray(0);
-  glVertexAttribPointer(1, 1, GL_FLOAT, GL_FALSE, VERTEX_STRIDE*sizeof(float), (void*)(sizeof(float)*3));
+  glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, VERTEX_STRIDE*sizeof(float), (void*)(sizeof(float)*3));
   glEnableVertexAttribArray(1);
-  glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, VERTEX_STRIDE*sizeof(float), (void*)(sizeof(float)*(3+1)));
-  glEnableVertexAttribArray(2);
   glBindVertexArray(0);
 }
 
@@ -31,41 +29,21 @@ void TriangleCollection::UpdateBuffer() {
   glBufferData(GL_ARRAY_BUFFER, sizeof(float)*fNumTriangles*TRIANGLE_STRIDE, &fTriangles[0], GL_DYNAMIC_DRAW);
 }
 
+// update only one triangle
+void TriangleCollection::UpdateBuffer(const int i) {
+  int triangle = i * TRIANGLE_STRIDE;
+  glBindBuffer(GL_ARRAY_BUFFER, VBO);
+  glBufferSubData(GL_ARRAY_BUFFER, triangle*sizeof(float), sizeof(float)*TRIANGLE_STRIDE, &fTriangles[triangle]);
+}
+
 TriangleCollection::~TriangleCollection() { delete[] fTriangles; }
 
 void TriangleCollection::RandomiseAll() {
-  RandomiseAll(false);
-}
-
-void TriangleCollection::SetTriangleVisibility(int i, bool visible) {
-  float alpha;
-  if (visible) {
-    alpha = 1.0;
-  } else {
-    alpha = 0.0;
-  }
-
-  int triangle = i * TRIANGLE_STRIDE;
-  for (int v = 0; v < 3; ++v) {
-    int triangleVertex = triangle + VERTEX_STRIDE*v;
-    fTriangles[triangleVertex + 3] = alpha;
-  }
-}
-
-void TriangleCollection::RandomiseAll(bool visible) {
   float zStep = (maxZ - minZ) / (fNumTriangles-1);
-
-  float alpha;
-  if (visible) {
-    alpha = 1.0;
-  } else {
-    alpha = 0.0;
-  }
-
   for (int i = 0; i < fNumTriangles; ++i) {
     int triangle = i * TRIANGLE_STRIDE;
     Triangle t(i * zStep + minZ);
-    t.GetArray(&fTriangles[triangle], alpha);
+    t.GetArray(&fTriangles[triangle]);
   }
 }
 
@@ -74,21 +52,24 @@ void TriangleCollection::Randomise_i(int i) {
   float current_vertices[TRIANGLE_STRIDE];
   GetTriangle(i, current_vertices);
 
-  // extract the current alpha value and z position
+  // extract the current  z position
   // these should be the same for each vertex
-  float alpha = current_vertices[3];
   float z = current_vertices[2];
 
   // generate new triangle
   int triangle = i * TRIANGLE_STRIDE;
   Triangle t(z);
-  t.GetArray(&fTriangles[triangle], alpha);
+  t.GetArray(&fTriangles[triangle]);
 }
 
 void TriangleCollection::Draw() {
+  Draw(fNumTriangles);
+}
+
+void TriangleCollection::Draw(const int n) {
   glBindVertexArray(VAO);
   glBindBuffer(GL_ARRAY_BUFFER, VBO);
-  glDrawArrays(GL_TRIANGLES, 0, 3*fNumTriangles);
+  glDrawArrays(GL_TRIANGLES, 0, 3*n);
 }
 
 void TriangleCollection::GetTriangle(int i, float *vertices_out) {

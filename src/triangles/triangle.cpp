@@ -59,28 +59,25 @@ void Triangle::calculateCOM() {
   fCOM[1] /= 3.0;
 }
 
-void Triangle::GetArray(float output[TRIANGLE_STRIDE], float alpha) {
+void Triangle::GetArray(float output[TRIANGLE_STRIDE]) {
   int i = 0;
   output[i+0] = fVertices[0];
   output[i+1] = fVertices[1];
   output[i+2] = fVertices[2];
-  output[i+3] = alpha;
-  output[i+4] = fCOM[0];
-  output[i+5] = fCOM[1];
+  output[i+3] = fCOM[0];
+  output[i+4] = fCOM[1];
 
   i = i+VERTEX_STRIDE;
   output[i+0] = fVertices[3];
   output[i+1] = fVertices[4];
   output[i+2] = fVertices[5];
-  output[i+3] = alpha;
-  output[i+4] = fCOM[0];
-  output[i+5] = fCOM[1];
+  output[i+3] = fCOM[0];
+  output[i+4] = fCOM[1];
 
   i = i+VERTEX_STRIDE;
   output[i+0] = fVertices[6];
   output[i+1] = fVertices[7];
   output[i+2] = fVertices[8];
-  output[i+3] = alpha;
-  output[i+4] = fCOM[0];
-  output[i+5] = fCOM[1];
+  output[i+3] = fCOM[0];
+  output[i+4] = fCOM[1];
 }

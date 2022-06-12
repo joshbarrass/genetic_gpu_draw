@@ -8,14 +8,14 @@ public:
   TriangleCollection(const int n);
   ~TriangleCollection();
   void UpdateBuffer();
-  void SetTriangleVisibility(int, bool);
+  void UpdateBuffer(const int);
   void RandomiseAll();
-  void RandomiseAll(bool);
   void Randomise_i(int);
 
   void GetTriangle(int, float*);
 
   void Draw();
+  void Draw(const int);
 
   void PrintVBOContents();
 private:
