@@ -86,9 +86,13 @@ void TriangleCollection::Randomise_i(int i) {
 }
 
 void TriangleCollection::Draw() {
+  Draw(fNumTriangles);
+}
+
+void TriangleCollection::Draw(const int n) {
   glBindVertexArray(VAO);
   glBindBuffer(GL_ARRAY_BUFFER, VBO);
-  glDrawArrays(GL_TRIANGLES, 0, 3*fNumTriangles);
+  glDrawArrays(GL_TRIANGLES, 0, 3*n);
 }
 
 void TriangleCollection::GetTriangle(int i, float *vertices_out) {

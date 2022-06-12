@@ -16,6 +16,7 @@ public:
   void GetTriangle(int, float*);
 
   void Draw();
+  void Draw(const int);
 
   void PrintVBOContents();
 private:

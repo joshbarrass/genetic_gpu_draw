@@ -107,8 +107,7 @@ int Main::run() {
 
   /* build a collection of triangles */
   TriangleCollection Triangles(ITERATIONS);
-  Triangles.RandomiseAll(false);
-  Triangles.SetTriangleVisibility(0, true);
+  Triangles.RandomiseAll(true);
   Triangles.UpdateBuffer();
 
   #ifdef BUILD_DEBUG
@@ -145,8 +144,6 @@ int Main::run() {
   Shader simpleShader("./shaders/triangle_vert_shader.glsl", "./shaders/simpleFragShader.glsl");
 
   glClearColorArray(INITIAL_WINDOW_COLOR);
-  glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-  glEnable( GL_BLEND );
 
   // glDisable(GL_DEPTH_TEST);
   // glDisable(GL_CULL_FACE);
@@ -192,15 +189,11 @@ int Main::run() {
     }
     glClear(GL_COLOR_BUFFER_BIT);
 
-    // enable the next triangle
-    Triangles.SetTriangleVisibility(i, true);
-    Triangles.UpdateBuffer();
-
     // draw the collection
     simpleShader.use();
     target.Use(targetUnitNumber);
     simpleShader.setInt("target_image", targetUnitNumber);
-    Triangles.Draw();
+    Triangles.Draw(i+1);
 
     // calculate error
     new_error = errorFunction.GetError();
@@ -216,7 +209,6 @@ int Main::run() {
     current_error = new_error;
     ++pbar;
     pbar.Display();
-    // std::cout << " (" << pbar.GetValue() << "/" <<  ITERATIONS << ")";
     printf(" (error: %.3E)", current_error);
     i = pbar.GetValue();
   }
