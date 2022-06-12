@@ -12,13 +12,21 @@ public:
 
   int GetWidth() const { return fTarget.GetWidth(); }
   int GetHeight() const { return fTarget.GetHeight(); }
-  GLuint GetDiffTexID() const { return fPixelDifferences.GetTex(); }
+  double GetError();
 
-  void Run() { RunDifferenceShader(); } // TODO: remove
-
+#ifndef BUILD_DEBUG
 private:
+#endif
+  GLuint GetDiffTexID() const { return fPixelDifferences.GetTex(); }
+  GLuint GetSumTexID() const { return fSummed.GetTex(); }
+  void Run() { RunDifferenceShader(); RunSummationShader(); }
+
+#ifdef BUILD_DEBUG
+private:
+#endif
   void DrawQuad();
   void RunDifferenceShader();
+  void RunSummationShader();
   
   ///////////
   
@@ -29,10 +37,11 @@ private:
   GLuint VBO;
 
   FramebufferTexture fPixelDifferences; // used to calculate the difference for each pixel
-  bool fSumColumns;
+  bool fSumToColumn;
   FramebufferTexture fSummed; // sum all rows/columns into a single array
 
   Shader fDifferenceShader; // shader to compute the difference between each pixel
+  Shader fSummationShader; // shader to sum over one axis
 };
 
 #endif
