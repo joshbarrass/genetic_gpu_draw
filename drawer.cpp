@@ -107,7 +107,7 @@ int Main::run() {
 
   /* build a collection of triangles */
   TriangleCollection Triangles(ITERATIONS);
-  Triangles.RandomiseAll(true);
+  Triangles.RandomiseAll();
   Triangles.UpdateBuffer();
 
   #ifdef BUILD_DEBUG

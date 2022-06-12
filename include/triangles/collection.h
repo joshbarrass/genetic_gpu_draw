@@ -8,9 +8,7 @@ public:
   TriangleCollection(const int n);
   ~TriangleCollection();
   void UpdateBuffer();
-  void SetTriangleVisibility(int, bool);
   void RandomiseAll();
-  void RandomiseAll(bool);
   void Randomise_i(int);
 
   void GetTriangle(int, float*);

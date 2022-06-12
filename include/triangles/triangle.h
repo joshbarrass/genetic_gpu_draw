@@ -14,7 +14,7 @@ public:
     x = fCOM[0];
     y = fCOM[1];
   }
-  void GetArray(float output[TRIANGLE_STRIDE], float alpha);
+  void GetArray(float output[TRIANGLE_STRIDE]);
 private:
   void calculateCOM();
   
