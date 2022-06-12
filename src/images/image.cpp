@@ -1,5 +1,6 @@
 #include "images/image.h"
 #include <stb/stb_image.h>
+#include <glad/glad.h>
 
 Image::~Image() {
   // images loaded via stb should be freed with stb
@@ -35,6 +36,21 @@ Image::Image(GLFWwindow *window) {
   fImageData = new GLubyte[3*fWidth*fHeight];
   glPixelStorei(GL_PACK_ALIGNMENT, 1);
   glReadPixels(0, 0, fWidth, fHeight, GL_RGB, GL_UNSIGNED_BYTE, fImageData);
+
+  fUsedStb = false;
+  FlipVerticallyOnWrite = true;
+}
+
+Image::Image(const FramebufferTexture fbtex) {
+  fWidth = fbtex.GetWidth();
+  fHeight = fbtex.GetHeight();
+  fImageData = new GLubyte[3*fWidth*fHeight];
+
+  // ensure that the images are not aligned to any boundaries
+  // this may introduce padding, which will corrupt the buffer
+  glPixelStorei(GL_PACK_ALIGNMENT, 1);
+  glBindTexture(GL_TEXTURE_2D, fbtex.GetTex());
+  glGetTexImage(GL_TEXTURE_2D, 0, GL_RGB, GL_UNSIGNED_BYTE, fImageData);
 
   fUsedStb = false;
   FlipVerticallyOnWrite = true;

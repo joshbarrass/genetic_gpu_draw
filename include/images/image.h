@@ -6,6 +6,7 @@
 #include <stb/stb_image.h>
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
+#include "framebuffer.h"
 
 class Image {
 public:
@@ -13,6 +14,7 @@ public:
   Image(const std::string filename);
   Image(const char *filename);
   Image(GLFWwindow *window);
+  Image(const FramebufferTexture);
   ~Image();
 
   void Save(const char *filename);

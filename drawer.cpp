@@ -8,12 +8,19 @@
 
 #include "images/image.h"
 #include "textureClass.h"
+#include "framebuffer.h"
 #include "main_class.h"
 #include "shaderClass.h"
 #include "triangles/constants.h"
 #include "triangles/collection.h"
 #include "progressBar.h"
 #include "rand.h"
+#include "consts.h"
+#include "errorfn/errorfn.h"
+
+#ifdef BUILD_DEBUG
+#include <stb/stb_image_write.h>
+#endif
 
 constexpr int PROGRESS_BAR_SIZE = 30;
 
@@ -70,6 +77,7 @@ int Main::run() {
   glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
   glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
   glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+  glfwWindowHint(GLFW_VISIBLE, GLFW_FALSE);
 
   // create the window
   GLFWwindow *window = glfwCreateWindow(WINDOW_WIDTH, WINDOW_HEIGHT, "Genetic GPU Draw", NULL, NULL);
@@ -95,7 +103,7 @@ int Main::run() {
 
   // load the image as a texture for use in the shader
   Texture target(IMAGE_FILE.c_str(), GL_RGB, GL_RGB);
-  constexpr GLuint targetUnitNumber = 0;
+  constexpr GLuint targetUnitNumber = targetImageUnitNumber;
 
   /* build a collection of triangles */
   TriangleCollection Triangles(ITERATIONS);
@@ -134,7 +142,7 @@ int Main::run() {
   #endif
 
   // build the shader program
-  Shader simpleShader("./shaders/simpleVertShader.glsl", "./shaders/simpleFragShader.glsl");
+  Shader simpleShader("./shaders/triangle_vert_shader.glsl", "./shaders/simpleFragShader.glsl");
 
   glClearColorArray(INITIAL_WINDOW_COLOR);
   glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
@@ -145,22 +153,37 @@ int Main::run() {
   // glDisable(GL_ALPHA_TEST);
   
   // wait in a basic loop
-  while (!glfwWindowShouldClose(window) && !shouldStartRendering) {
-    process_input(window);
-    glClear(GL_COLOR_BUFFER_BIT);
-    glfwSwapBuffers(window);
-    glfwPollEvents();
-  }
-  if (glfwWindowShouldClose(window)) {
-    return 0;
-  }
+  // while (!glfwWindowShouldClose(window) && !shouldStartRendering) {
+  //   process_input(window);
+  //   glClear(GL_COLOR_BUFFER_BIT);
+  //   glfwSwapBuffers(window);
+  //   glfwPollEvents();
+  // }
+  // if (glfwWindowShouldClose(window)) {
+  //   return 0;
+  // }
 
   simpleShader.use();
+
+  FramebufferTexture canvas(WINDOW_WIDTH, WINDOW_HEIGHT);
+  canvas.Use();
+
+  ErrorFn errorFunction(target, canvas);
+  // calculate initial error for blank canvas
+  glClear(GL_COLOR_BUFFER_BIT);
+  double current_error = errorFunction.GetError();
+  // error function changes the active framebuffer, so we must
+  // enable the canvas again
+  canvas.Use();
+
+  // define working error in advance
+  double new_error;
 
   ProgressBar pbar(PROGRESS_BAR_SIZE, 0, ITERATIONS, true);
   int i = pbar.GetValue();
   while (i < ITERATIONS && !glfwWindowShouldClose(window)) {
     // check for premature exit
+    glfwPollEvents();
     if (FINISH_NOW) {
       // exit via the built-in method; admittedly it shouldn't make a
       // difference
@@ -179,19 +202,99 @@ int Main::run() {
     simpleShader.setInt("target_image", targetUnitNumber);
     Triangles.Draw();
 
-    glfwPollEvents();
+    // calculate error
+    new_error = errorFunction.GetError();
+    canvas.Use();
+    if (new_error >= current_error) {
+      // triangle did not improve the error
+      // generate a new triangle to replace it, and skip incrementing i
+      Triangles.Randomise_i(i);
+      Triangles.UpdateBuffer();
+      continue;
+    }
+    
+    current_error = new_error;
     ++pbar;
     pbar.Display();
+    // std::cout << " (" << pbar.GetValue() << "/" <<  ITERATIONS << ")";
+    printf(" (error: %.3E)", current_error);
     i = pbar.GetValue();
   }
   std::cerr << std::endl;
-  glfwSwapBuffers(window);
+  // glfwSwapBuffers(window);
 
-  Image output(window);
-  output.Save(OUT_FILE);
+  std::cerr << "Waiting for rendering to complete..." << std::endl;
+  glFinish();
+  std::cerr << "Copying canvas to CPU..." << std::endl;
+  Image fboutput(canvas);
+  std::cerr << "Saving..." << std::endl;
+  fboutput.Save(OUT_FILE);
+
+  #ifdef BUILD_DEBUG
+  /////////////
+  // Testing //
+  /////////////
+  errorFunction.Run();
+  GLuint diffTexID = errorFunction.GetDiffTexID();
+  int errWidth = errorFunction.GetWidth();
+  int errHeight = errorFunction.GetHeight();
+  GLfloat *errImageData = new GLfloat[4*errWidth*errHeight];
+  GLuint *errImageDataToSave = new GLuint[3*errWidth*errHeight];
+
+  // dump the difference texture
+  glPixelStorei(GL_PACK_ALIGNMENT, 1);
+  glBindTexture(GL_TEXTURE_2D, diffTexID);
+  glGetTexImage(GL_TEXTURE_2D, 0, GL_RGBA, GL_FLOAT, errImageData);
+  glGetTexImage(GL_TEXTURE_2D, 0, GL_RGB, GL_UNSIGNED_BYTE, errImageDataToSave);
+
+  float max_error = 0;
+  for (int i = 0; i < 4 * errWidth * errHeight; i+=4) {
+    using namespace std;
+    cerr << errImageData[i] << " ";
+    if (errImageData[i] > max_error) {
+      max_error = errImageData[i];
+    }
+  }
+  std::cerr << std::endl;
+  std::cerr << "Max error: " << max_error << std::endl;
+  std::cerr << std::endl << std::endl;
+  stbi_flip_vertically_on_write(true);
+  stbi_write_png("errImage.png", errWidth, errHeight, 3, errImageDataToSave, 3*errWidth);
+
+  GLuint sumTexID = errorFunction.GetSumTexID();
+  int sumWidth = errorFunction.GetWidth();
+  int sumHeight = 1;
+  GLfloat *sumImageData = new GLfloat[4*sumWidth*sumHeight];
+  GLuint *sumImageDataToSave = new GLuint[3*sumWidth*sumHeight];
+
+  // dump the summation texture
+  glPixelStorei(GL_PACK_ALIGNMENT, 1);
+  glBindTexture(GL_TEXTURE_2D, sumTexID);
+  glGetTexImage(GL_TEXTURE_2D, 0, GL_RGBA, GL_FLOAT, sumImageData);
+  glGetTexImage(GL_TEXTURE_2D, 0, GL_RGB, GL_UNSIGNED_BYTE, sumImageDataToSave);
+
+  double total_error = 0;
+  max_error = 0;
+  for (int i = 0; i < 4 * sumWidth * sumHeight; i+=4) {
+    using namespace std;
+    cerr << sumImageData[i] << " ";
+    if (sumImageData[i] > max_error) {
+      max_error = sumImageData[i];
+    }
+    total_error += sumImageData[i];
+  }
+  std::cerr << std::endl;
+  std::cerr << "Max error: " << max_error << std::endl;
+  std::cerr << "Total error: " << total_error << std::endl;
+  std::cerr << std::endl << std::endl;
+  stbi_flip_vertically_on_write(true);
+  stbi_write_png("sumImage.png", sumWidth, sumHeight, 3, sumImageDataToSave, 3*sumWidth);
+  
+  #endif
 
   glfwTerminate();
   return 0;
+  
 }
 
 int main(int argc, char **argv) {
@@ -199,5 +302,6 @@ int main(int argc, char **argv) {
   if (int err = program.parseArgs(argc, argv); err != 0) {
     return err;
   }
+  program.register_signal_callback();
   return program.run();
 }

@@ -6,6 +6,9 @@
 
 #include <iostream>
 
+constexpr float minZ = (-0.95);
+constexpr float maxZ = 0.95;
+
 TriangleCollection::TriangleCollection(const int n) : fNumTriangles(n) {
   fTriangles = new float[n*TRIANGLE_STRIDE];
 
@@ -50,8 +53,6 @@ void TriangleCollection::SetTriangleVisibility(int i, bool visible) {
 }
 
 void TriangleCollection::RandomiseAll(bool visible) {
-  constexpr float minZ = (-0.95);
-  constexpr float maxZ = 0.95;
   float zStep = (maxZ - minZ) / (fNumTriangles-1);
 
   float alpha;
@@ -66,6 +67,22 @@ void TriangleCollection::RandomiseAll(bool visible) {
     Triangle t(i * zStep + minZ);
     t.GetArray(&fTriangles[triangle], alpha);
   }
+}
+
+void TriangleCollection::Randomise_i(int i) {
+  // get the current triangle
+  float current_vertices[TRIANGLE_STRIDE];
+  GetTriangle(i, current_vertices);
+
+  // extract the current alpha value and z position
+  // these should be the same for each vertex
+  float alpha = current_vertices[3];
+  float z = current_vertices[2];
+
+  // generate new triangle
+  int triangle = i * TRIANGLE_STRIDE;
+  Triangle t(z);
+  t.GetArray(&fTriangles[triangle], alpha);
 }
 
 void TriangleCollection::Draw() {
