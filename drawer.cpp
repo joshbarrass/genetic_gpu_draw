@@ -169,11 +169,21 @@ int Main::run() {
   canvas.Use();
 
   ErrorFn errorFunction(target, canvas);
+  // calculate initial error for blank canvas
+  glClear(GL_COLOR_BUFFER_BIT);
+  double current_error = errorFunction.GetError();
+  // error function changes the active framebuffer, so we must
+  // enable the canvas again
+  canvas.Use();
+
+  // define working error in advance
+  double new_error;
 
   ProgressBar pbar(PROGRESS_BAR_SIZE, 0, ITERATIONS, true);
   int i = pbar.GetValue();
   while (i < ITERATIONS && !glfwWindowShouldClose(window)) {
     // check for premature exit
+    glfwPollEvents();
     if (FINISH_NOW) {
       // exit via the built-in method; admittedly it shouldn't make a
       // difference
@@ -192,16 +202,22 @@ int Main::run() {
     simpleShader.setInt("target_image", targetUnitNumber);
     Triangles.Draw();
 
-    // TODO: calculate the error; for now, this just checks for
-    // interference
-    errorFunction.Run();
-    // error function changes the active framebuffer, so we must
-    // enable the canvas again
+    // calculate error
+    new_error = errorFunction.GetError();
     canvas.Use();
-
-    glfwPollEvents();
+    if (new_error >= current_error) {
+      // triangle did not improve the error
+      // generate a new triangle to replace it, and skip incrementing i
+      Triangles.Randomise_i(i);
+      Triangles.UpdateBuffer();
+      continue;
+    }
+    
+    current_error = new_error;
     ++pbar;
     pbar.Display();
+    // std::cout << " (" << pbar.GetValue() << "/" <<  ITERATIONS << ")";
+    printf(" (error: %.3E)", current_error);
     i = pbar.GetValue();
   }
   std::cerr << std::endl;
@@ -241,8 +257,39 @@ int Main::run() {
   }
   std::cerr << std::endl;
   std::cerr << "Max error: " << max_error << std::endl;
+  std::cerr << std::endl << std::endl;
   stbi_flip_vertically_on_write(true);
   stbi_write_png("errImage.png", errWidth, errHeight, 3, errImageDataToSave, 3*errWidth);
+
+  GLuint sumTexID = errorFunction.GetSumTexID();
+  int sumWidth = errorFunction.GetWidth();
+  int sumHeight = 1;
+  GLfloat *sumImageData = new GLfloat[4*sumWidth*sumHeight];
+  GLuint *sumImageDataToSave = new GLuint[3*sumWidth*sumHeight];
+
+  // dump the summation texture
+  glPixelStorei(GL_PACK_ALIGNMENT, 1);
+  glBindTexture(GL_TEXTURE_2D, sumTexID);
+  glGetTexImage(GL_TEXTURE_2D, 0, GL_RGBA, GL_FLOAT, sumImageData);
+  glGetTexImage(GL_TEXTURE_2D, 0, GL_RGB, GL_UNSIGNED_BYTE, sumImageDataToSave);
+
+  double total_error = 0;
+  max_error = 0;
+  for (int i = 0; i < 4 * sumWidth * sumHeight; i+=4) {
+    using namespace std;
+    cerr << sumImageData[i] << " ";
+    if (sumImageData[i] > max_error) {
+      max_error = sumImageData[i];
+    }
+    total_error += sumImageData[i];
+  }
+  std::cerr << std::endl;
+  std::cerr << "Max error: " << max_error << std::endl;
+  std::cerr << "Total error: " << total_error << std::endl;
+  std::cerr << std::endl << std::endl;
+  stbi_flip_vertically_on_write(true);
+  stbi_write_png("sumImage.png", sumWidth, sumHeight, 3, sumImageDataToSave, 3*sumWidth);
+  
   #endif
 
   glfwTerminate();
