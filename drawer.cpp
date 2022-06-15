@@ -3,8 +3,8 @@
 #include <filesystem>
 #include <stdlib.h>
 
+#include <EGL/egl.h>
 #include <glad/glad.h>
-#include <GLFW/glfw3.h>
 
 #include "images/image.h"
 #include "images/svg.h"
@@ -32,22 +32,24 @@ const double INITIAL_WINDOW_COLOR[4] = {0x00/255., 0x00/255., 0x00/255., 0xff/25
 Main::Main() : set_image_file(false), set_out_file(false), set_iterations(false), IMAGES_PER_GENERATION(1), set_resume_file(false), set_seed(false), set_svg_file(false), FINISH_NOW(false), shouldStartRendering(false) {}
 Main::~Main() {}
 
-// callback to resize the framebuffer if the user resizes the window
-void framebuffer_size_callback(GLFWwindow *window, int width, int height) {
-  glViewport(0, 0, width, height);
-}
+static const EGLint configAttribs[] = {
+  EGL_SURFACE_TYPE, EGL_PBUFFER_BIT,
+  EGL_BLUE_SIZE, 8,
+  EGL_GREEN_SIZE, 8,
+  EGL_RED_SIZE, 8,
+  EGL_DEPTH_SIZE, 8,
+  EGL_RENDERABLE_TYPE, EGL_OPENGL_BIT,
+  EGL_NONE
+};    
 
-// respond to input
-void Main::process_input(GLFWwindow *window) {
-  // exit on ESC
-  if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS) {
-    glfwSetWindowShouldClose(window, GLFW_TRUE);
-  }
-  // start rendering on SPACE
-  if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS) {
-    shouldStartRendering = true;
-  }
-}
+static const int pbufferWidth = 9;
+static const int pbufferHeight = 9;
+
+static const EGLint pbufferAttribs[] = {
+  EGL_WIDTH, pbufferWidth,
+  EGL_HEIGHT, pbufferHeight,
+  EGL_NONE,
+};
 
 #define glClearColorArray(color) \
   glClearColor(color[0], color[1], color[2], color[3])
@@ -72,26 +74,34 @@ int Main::run() {
     WINDOW_HEIGHT = im.GetHeight();
   }
 
-  /* initialise a GLFW window (LearnOpenGL 4) */
-  glfwInit();
+  // 1. Initialize EGL
+  EGLDisplay eglDpy = eglGetDisplay(EGL_DEFAULT_DISPLAY);
 
-  // set required OpenGL version and profile
-  glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
-  glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
-  glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
-  glfwWindowHint(GLFW_VISIBLE, GLFW_FALSE);
+  EGLint major, minor;
 
-  // create the window
-  GLFWwindow *window = glfwCreateWindow(WINDOW_WIDTH, WINDOW_HEIGHT, "Genetic GPU Draw", NULL, NULL);
-  if (!window) {
-    std::cerr << "Failed to create GLFW window!" << std::endl;
-    glfwTerminate();
-    return -1;
-  }
-  glfwMakeContextCurrent(window);
+  eglInitialize(eglDpy, &major, &minor);
+
+  // 2. Select an appropriate configuration
+  EGLint numConfigs;
+  EGLConfig eglCfg;
+
+  eglChooseConfig(eglDpy, configAttribs, &eglCfg, 1, &numConfigs);
+
+  // 3. Create a surface
+  EGLSurface eglSurf = eglCreatePbufferSurface(eglDpy, eglCfg, 
+                                               pbufferAttribs);
+
+  // 4. Bind the API
+  eglBindAPI(EGL_OPENGL_API);
+
+  // 5. Create a context and make it current
+  EGLContext eglCtx = eglCreateContext(eglDpy, eglCfg, EGL_NO_CONTEXT, 
+                                       NULL);
+
+  eglMakeCurrent(eglDpy, eglSurf, eglSurf, eglCtx);
 
   /* initialise GLAD so we can access OpenGL function pointers (LearnOpenGL 4.1) */
-  if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress)) {
+  if (!gladLoadGL()) {
     std::cerr << "Failed to initialise GLAD!" << std::endl;
     glfwTerminate();
     return -1;
@@ -99,9 +109,6 @@ int Main::run() {
 
   /* set viewport size */
   glViewport(0, 0, WINDOW_WIDTH, WINDOW_HEIGHT);
-
-  /* register callback */
-  glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
 
   // print render device info
   const GLubyte* vendor = glGetString(GL_VENDOR);
@@ -201,16 +208,7 @@ int Main::run() {
 
   ProgressBar pbar(PROGRESS_BAR_SIZE, 0, ITERATIONS, true);
   int i = pbar.GetValue();
-  while (i < ITERATIONS && !glfwWindowShouldClose(window)) {
-    // check for premature exit
-    glfwPollEvents();
-    if (FINISH_NOW) {
-      // exit via the built-in method; admittedly it shouldn't make a
-      // difference
-      glfwSetWindowShouldClose(window, true);
-      continue;
-    }
-
+  while (i < ITERATIONS && !FINISH_NOW) {
     // draw the collection
     simpleShader.use();
     target.Use(targetUnitNumber);
@@ -242,7 +240,7 @@ int Main::run() {
   // glfwSwapBuffers(window);
 
   // if we exited early, restore the clean copy of the image
-  if (FINISH_NOW || glfwWindowShouldClose(window)) {
+  if (FINISH_NOW) {
     cache.Restore();
   }
 
@@ -330,7 +328,8 @@ int Main::run() {
   
   #endif
 
-  glfwTerminate();
+  // 6. Terminate EGL when finished
+  eglTerminate(eglDpy);
   return 0;
   
 }

@@ -62,4 +62,4 @@ add_executable(drawer drawer.cpp ${sources} ${headers})
 
 # add libraries
 set(GLFW_LIBS X11 rt m dl pthread)
-target_link_libraries(drawer glfw ${GLFW_LIBS})
+target_link_libraries(drawer EGL glfw ${GLFW_LIBS})
