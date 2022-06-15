@@ -72,6 +72,13 @@ void TriangleCollection::Draw(const int n) {
   glDrawArrays(GL_TRIANGLES, 0, 3*n);
 }
 
+void TriangleCollection::DrawOne(const int i) {
+  int triangle = i * TRIANGLE_STRIDE;
+  glBindVertexArray(VAO);
+  glBindBuffer(GL_ARRAY_BUFFER, VBO);
+  glDrawArrays(GL_TRIANGLES, triangle*sizeof(float), 3);
+}
+
 void TriangleCollection::GetTriangle(int i, float *vertices_out) {
   std::copy(fTriangles + i*TRIANGLE_STRIDE, fTriangles + i*TRIANGLE_STRIDE + TRIANGLE_STRIDE, vertices_out);
 }
