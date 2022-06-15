@@ -227,6 +227,11 @@ int Main::run() {
   std::cerr << std::endl;
   // glfwSwapBuffers(window);
 
+  // if we exited early, restore the clean copy of the image
+  if (FINISH_NOW || glfwWindowShouldClose(window)) {
+    cache.Restore();
+  }
+
   std::cerr << "Waiting for rendering to complete..." << std::endl;
   glFinish();
   std::cerr << "Copying canvas to CPU..." << std::endl;
