@@ -55,3 +55,16 @@ Image::Image(const FramebufferTexture fbtex) {
   fUsedStb = false;
   FlipVerticallyOnWrite = true;
 }
+
+Image::Image(const FramebufferCache &fbcache) {
+  fWidth = fbcache.GetWidth();
+  fHeight = fbcache.GetHeight();
+  fImageData = new GLubyte[3*fWidth*fHeight];
+
+  glPixelStorei(GL_PACK_ALIGNMENT, 1);
+  glBindTexture(GL_TEXTURE_2D, fbcache.GetTex());
+  glGetTexImage(GL_TEXTURE_2D, 0, GL_RGB, GL_UNSIGNED_BYTE, fImageData);
+
+  fUsedStb = false;
+  FlipVerticallyOnWrite = true;
+}
