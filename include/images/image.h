@@ -7,6 +7,7 @@
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 #include "framebuffer.h"
+#include "framebuffer_cache.h"
 
 class Image {
 public:
@@ -15,6 +16,7 @@ public:
   Image(const char *filename);
   Image(GLFWwindow *window);
   Image(const FramebufferTexture);
+  Image(const FramebufferCache&);
   ~Image();
 
   void Save(const char *filename);

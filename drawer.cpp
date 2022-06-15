@@ -17,6 +17,7 @@
 #include "rand.h"
 #include "consts.h"
 #include "errorfn/errorfn.h"
+#include "framebuffer_cache.h"
 
 #ifdef BUILD_DEBUG
 #include <stb/stb_image_write.h>
@@ -164,6 +165,7 @@ int Main::run() {
 
   FramebufferTexture canvas(WINDOW_WIDTH, WINDOW_HEIGHT);
   canvas.Use();
+  FramebufferCache cache(canvas);
 
   ErrorFn errorFunction(target, canvas);
   // calculate initial error for blank canvas
@@ -172,6 +174,8 @@ int Main::run() {
   // error function changes the active framebuffer, so we must
   // enable the canvas again
   canvas.Use();
+  // initialise the cache
+  cache.Cache();
 
   // define working error in advance
   double new_error;
@@ -187,25 +191,28 @@ int Main::run() {
       glfwSetWindowShouldClose(window, true);
       continue;
     }
-    glClear(GL_COLOR_BUFFER_BIT);
 
     // draw the collection
     simpleShader.use();
     target.Use(targetUnitNumber);
     simpleShader.setInt("target_image", targetUnitNumber);
-    Triangles.Draw(i+1);
+    Triangles.DrawOne(i);
 
     // calculate error
     new_error = errorFunction.GetError();
     canvas.Use();
     if (new_error >= current_error) {
       // triangle did not improve the error
-      // generate a new triangle to replace it, and skip incrementing i
+      // generate a new triangle to replace it, skip incrementing i,
+      // restore the cache
       Triangles.Randomise_i(i);
       Triangles.UpdateBuffer(i);
+      cache.Restore();
       continue;
     }
-    
+
+    // error has improved
+    cache.Cache();
     current_error = new_error;
     ++pbar;
     pbar.Display();
@@ -221,6 +228,12 @@ int Main::run() {
   Image fboutput(canvas);
   std::cerr << "Saving..." << std::endl;
   fboutput.Save(OUT_FILE);
+
+  #ifdef BUILD_DEBUG
+  std::cerr << "Saving cache..." << std::endl;
+  Image cacheoutput(cache);
+  cacheoutput.Save("CACHE.png");
+  #endif
 
   #ifdef BUILD_DEBUG
   /////////////

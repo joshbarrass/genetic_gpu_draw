@@ -16,6 +16,7 @@ public:
 
   void Draw();
   void Draw(const int);
+  void DrawOne(const int);
 
   void PrintVBOContents();
 private:
