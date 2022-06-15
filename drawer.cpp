@@ -102,6 +102,11 @@ int Main::run() {
   /* register callback */
   glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
 
+  // print render device info
+  const GLubyte* vendor = glGetString(GL_VENDOR);
+  const GLubyte* renderer = glGetString(GL_RENDERER);
+  std::cout << "Render device: " << vendor << "  " << renderer << std::endl;
+
   // load the image as a texture for use in the shader
   Texture target(IMAGE_FILE.c_str(), GL_RGB, GL_RGB);
   constexpr GLuint targetUnitNumber = targetImageUnitNumber;
