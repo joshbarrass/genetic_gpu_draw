@@ -3,11 +3,9 @@
 #include "triangles/collection.h"
 #include "triangles/triangle.h"
 #include "rand.h"
+#include "consts.h"
 
 #include <iostream>
-
-constexpr float minZ = (-0.95);
-constexpr float maxZ = 0.95;
 
 TriangleCollection::TriangleCollection(const int n) : fNumTriangles(n) {
   fTriangles = new float[n*TRIANGLE_STRIDE];
@@ -39,10 +37,10 @@ void TriangleCollection::UpdateBuffer(const int i) {
 TriangleCollection::~TriangleCollection() { delete[] fTriangles; }
 
 void TriangleCollection::RandomiseAll() {
-  float zStep = (maxZ - minZ) / (fNumTriangles-1);
+  float zStep = (triCollectionMaxZ - triCollectionMinZ) / (fNumTriangles-1);
   for (int i = 0; i < fNumTriangles; ++i) {
     int triangle = i * TRIANGLE_STRIDE;
-    Triangle t(i * zStep + minZ);
+    Triangle t(i * zStep + triCollectionMinZ);
     t.GetArray(&fTriangles[triangle]);
   }
 }
@@ -73,10 +71,9 @@ void TriangleCollection::Draw(const int n) {
 }
 
 void TriangleCollection::DrawOne(const int i) {
-  int triangle = i * TRIANGLE_STRIDE;
   glBindVertexArray(VAO);
   glBindBuffer(GL_ARRAY_BUFFER, VBO);
-  glDrawArrays(GL_TRIANGLES, triangle*sizeof(float), 3);
+  glDrawArrays(GL_TRIANGLES, 3*i, 3);
 }
 
 void TriangleCollection::GetTriangle(int i, float *vertices_out) {
