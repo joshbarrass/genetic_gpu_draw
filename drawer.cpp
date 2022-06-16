@@ -108,7 +108,20 @@ int Main::run() {
   std::cout << "Render device: " << vendor << "  " << renderer << std::endl;
 
   // load the image as a texture for use in the shader
-  Texture target(IMAGE_FILE.c_str(), GL_RGB, GL_RGB);
+  // NOTE: setting srcColorScheme as RGBA *will* work for images that
+  // are just RGB; the class is written such that stb will force the
+  // correct number of channels. However, OpenGL requires each row of
+  // the texture to be padded to be a multiple of 4-bytes, and will
+  // *not* add this padding for you. Using srcColorScheme as RGBA
+  // ensures there will be 4 channels, and with one byte per channel
+  // this guarantees that each row is a multiple of 4-bytes, avoiding
+  // any problems.
+  //
+  // glPixelStorei(GL_UNPACK_ALIGNMENT, 1) could be used to allow this
+  // to be set to GL_RGB, though it seems it may be *slightly* faster
+  // to use GL_RGBA here to ensure the 4-byte alignment. Either
+  // solution works, I have just opted for this one.
+  Texture target(IMAGE_FILE.c_str(), GL_RGBA, GL_RGB);
   constexpr GLuint targetUnitNumber = targetImageUnitNumber;
 
   /* build a collection of triangles */
