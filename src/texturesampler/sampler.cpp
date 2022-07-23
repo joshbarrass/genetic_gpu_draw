@@ -12,8 +12,13 @@ const float quadVerts[] = {
   1.0, 1.0 // top right
 };
 
-// TODO:
-TextureSampler::~TextureSampler() {}
+TextureSampler::~TextureSampler() {
+  // delete VAO and VBO
+  glDeleteVertexArrays(1, &VAO);
+  glDeleteBuffers(1, &VBO);
+
+  // other objects should go out of scope
+}
 
 TextureSampler::TextureSampler(Texture &target) : fTarget(target), fSampleBuffer(1, 1, GL_RGB), fSampleShader("shaders/simpleVertShader.glsl", "shaders/sample_shader.glsl") {
   // create VBO and VAO
