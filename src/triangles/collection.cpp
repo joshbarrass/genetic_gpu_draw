@@ -76,8 +76,19 @@ void TriangleCollection::DrawOne(const int i) const {
   glDrawArrays(GL_TRIANGLES, 3*i, 3);
 }
 
+// get a triangle directly from the buffer. This will be
+// TRIANGLE_STRIDE floats. For a more friendly function, use
+// GetTriangle(int)
 void TriangleCollection::GetTriangle(int i, float *vertices_out) const {
   std::copy(fTriangles + i*TRIANGLE_STRIDE, fTriangles + i*TRIANGLE_STRIDE + TRIANGLE_STRIDE, vertices_out);
+}
+
+Triangle TriangleCollection::GetTriangle(int i) const {
+  // fetch the internal representation of the triangle
+  float internal[TRIANGLE_STRIDE];
+  GetTriangle(i, internal);
+
+  return Triangle(internal);
 }
 
 void TriangleCollection::PrintVBOContents() const {

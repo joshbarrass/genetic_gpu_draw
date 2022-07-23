@@ -2,6 +2,7 @@
 #define TRIANGLE_COLLECTION_H 1
 
 #include <glad/glad.h>
+#include "triangles/triangle.h"
 
 class TriangleCollection {
 public:
@@ -13,6 +14,7 @@ public:
   void Randomise_i(int);
 
   void GetTriangle(int, float*) const;
+  Triangle GetTriangle(int) const;
 
   void Draw() const;
   void Draw(const int) const;
