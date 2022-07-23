@@ -69,6 +69,20 @@ void sample_texture(const Image &im, const float target_x, const float target_y,
   im.GetPixelValue(x, y, r, g, b);
 }
 
+void write_polygon(std::ofstream &outfile, const float verts[6],
+                   const unsigned char r, const unsigned char g,
+                   const unsigned char b) {
+  outfile << "<polygon points=\"";
+
+  // large buffer
+  char buffer[256];
+  std::snprintf(buffer, 255, "%.6f,%.6f %.6f,%.6f %.6f,%.6f", verts[0], -verts[1], verts[2], -verts[3], verts[4], -verts[5]);
+  outfile << buffer;
+
+  outfile << "\" stroke=\"none\" ";
+  outfile << "fill=\"rgb(" << (int)r << "," << (int)g << "," << (int)b << ")\"/>";
+}
+
 // write_svg: write an SVG based on a triangle collection and a
 // reference image
 void write_svg(const TriangleCollection &triangles, const Image &im,
@@ -102,15 +116,7 @@ void write_svg(const TriangleCollection &triangles, const Image &im,
     tri.GetVertices2D(v);
 
     // write the triangle
-    outfile << "<polygon points=\"";
-
-    // large buffer
-    char buffer[256];
-    std::snprintf(buffer, 255, "%.6f,%.6f %.6f,%.6f %.6f,%.6f", v[0], -v[1], v[2], -v[3], v[4], -v[5]);
-    outfile << buffer;
-    
-    outfile << "\" stroke=\"none\" ";
-    outfile << "fill=\"rgb(" << (int)r << "," << (int)g << "," << (int)b << ")\"/>";
+    write_polygon(outfile, v, r, g, b);
   }
 
   // write the footer
