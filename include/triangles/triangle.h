@@ -5,6 +5,7 @@
 
 class Triangle {
 public:
+  Triangle(const float[TRIANGLE_STRIDE]);
   Triangle(const float[9]);
   Triangle(const float);
   ~Triangle() {};

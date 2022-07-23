@@ -8,6 +8,20 @@
 // constexpr int perCoord = 2;
 // constexpr int arrayLength = 3*perCoord;
 
+// Construct a triangle from the internal format, as outputted by
+// GetArray. This method shouild always be kept up-to-date with the
+// internal structure of the triangles
+Triangle::Triangle(const float vertices[TRIANGLE_STRIDE]) {
+  // copy the three vertices
+  std::copy(&vertices[0], &vertices[0] + 3, &fVertices[0]);
+  std::copy(&vertices[0] + TRIANGLE_STRIDE, &vertices[0] + TRIANGLE_STRIDE + 3, &fVertices[3]);
+  std::copy(&vertices[0] + TRIANGLE_STRIDE*2, &vertices[0] + TRIANGLE_STRIDE*2 + 3, &vertices[6]);
+
+  // copy the COM
+  fCOM[0] = vertices[3];
+  fCOM[1] = vertices[4];
+}
+
 Triangle::Triangle(const float vertices[9]) {
   // copy vertices to internal
   std::copy(&vertices[0], &vertices[0] + 9, &fVertices[0]);
