@@ -74,6 +74,9 @@ constexpr int get_array_index(int x, int y, int w) {
   return w*y + x;
 }
 
-unsigned char Image::GetPixelValue(int x, int y) const {
-  return fImageData[get_array_index(x, y, fWidth)];
+void Image::GetPixelValue(int x, int y, unsigned char &r, unsigned char &g, unsigned char &b) const {
+  const int i = get_array_index(x, y, fWidth);
+  r = fImageData[i];
+  g = fImageData[i+1];
+  b = fImageData[i+2];
 }

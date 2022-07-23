@@ -26,7 +26,7 @@ public:
   int GetWidth() const { return fWidth; }
   int GetHeight() const { return fHeight; }
 
-  unsigned char GetPixelValue(int x, int y) const;
+  void GetPixelValue(int x, int y, unsigned char &r, unsigned char &g, unsigned char &b) const;
 
   // used for saving, but could be overridden
   bool FlipVerticallyOnWrite;
