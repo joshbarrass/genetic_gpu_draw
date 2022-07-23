@@ -33,8 +33,8 @@ Triangle::Triangle(const float *vertices, const bool is_internal) {
 void Triangle::copy_array_as_internal(const float vertices[TRIANGLE_STRIDE]) {
   // copy the three vertices
   std::copy(&vertices[0], &vertices[0] + 3, &fVertices[0]);
-  std::copy(&vertices[0] + TRIANGLE_STRIDE, &vertices[0] + TRIANGLE_STRIDE + 3, &fVertices[3]);
-  std::copy(&vertices[0] + TRIANGLE_STRIDE*2, &vertices[0] + TRIANGLE_STRIDE*2 + 3, &vertices[6]);
+  std::copy(&vertices[0] + VERTEX_STRIDE, &vertices[0] + VERTEX_STRIDE + 3, &fVertices[3]);
+  std::copy(&vertices[0] + VERTEX_STRIDE*2, &vertices[0] + VERTEX_STRIDE*2 + 3, &fVertices[6]);
 
   // copy the COM
   fCOM[0] = vertices[3];
