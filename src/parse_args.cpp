@@ -10,7 +10,7 @@ Usage:
 
 -f --target          Path to image file to aim for
 -o --output          Path to output final image to (only PNG supported)
--v --svg             Path to output SVG to
+-v --svg             Path to output SVG to (not outputted if program is interrupted)
 -n --triangles       Number of triangles to draw
 -g --per-generation  Number of triangles to attempt to draw each generation
 -s --seed            Set the seed used to generate the triangles

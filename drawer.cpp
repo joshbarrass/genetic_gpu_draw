@@ -254,8 +254,12 @@ int Main::run() {
   fboutput.Save(OUT_FILE);
 
   if (set_svg_file) {
-    std::cerr << "Saving SVG..." << std::endl;
-    write_svg(Triangles, Image(IMAGE_FILE), SVG_FILE.c_str());
+    if (!FINISH_NOW) {
+      std::cerr << "Saving SVG..." << std::endl;
+      write_svg(Triangles, Image(IMAGE_FILE), SVG_FILE.c_str());
+    } else {
+      std::cerr << "Cannot save SVG; program interrupted" << std::endl;
+    }
   }
 
   #ifdef BUILD_DEBUG
