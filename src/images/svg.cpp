@@ -83,19 +83,27 @@ void write_polygon(std::ofstream &outfile, const float verts[6],
   outfile << "fill=\"rgb(" << (int)r << "," << (int)g << "," << (int)b << ")\"/>";
 }
 
+void write_svg_header(std::ofstream &outfile, const int w, const int h) {
+  // write the header
+  // defined viewbox matches OpenGL coordinates, except with y-axis inverted
+  outfile << SVG_header;
+  outfile << "width=\"" << w << "\" height=\"" << h << "\" viewBox=\"-1 -1 2 2\"" << SVG_header_end;
+
+  // add a rect representing the background
+  outfile << "<rect x=\"-1\" y=\"-1\" width=\"2\" height=\"2\" stroke=\"none\" fill=\"black\"/>";
+}
+
+void write_svg_footer(std::ofstream &outfile) {
+  outfile << SVG_footer;
+}
+
 // write_svg: write an SVG based on a triangle collection and a
 // reference image
 void write_svg(const TriangleCollection &triangles, const Image &im,
                const char *filename) {
   std::ofstream outfile(filename);
 
-  // write the header
-  // defined viewbox matches OpenGL coordinates, except with y-axis inverted
-  outfile << SVG_header;
-  outfile << "width=\"" << im.GetWidth() << "\" height=\"" << im.GetHeight() << "\" viewBox=\"-1 -1 2 2\"" << SVG_header_end;
-
-  // add a rect representing the background
-  outfile << "<rect x=\"-1\" y=\"-1\" width=\"2\" height=\"2\" stroke=\"none\" fill=\"black\"/>";
+  write_svg_header(outfile, im.GetWidth(), im.GetHeight());
 
   // add all the triangles in the collection
   for (int i = 0; i < triangles.GetNumTriangles(); ++i) {
@@ -119,8 +127,7 @@ void write_svg(const TriangleCollection &triangles, const Image &im,
     write_polygon(outfile, v, r, g, b);
   }
 
-  // write the footer
-  outfile << SVG_footer;
+  write_svg_footer(outfile);
 
   outfile.close();
 }
