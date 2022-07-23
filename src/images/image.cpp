@@ -68,3 +68,12 @@ Image::Image(const FramebufferCache &fbcache) {
   fUsedStb = false;
   FlipVerticallyOnWrite = true;
 }
+
+// convert an x/y corrd to an array index based on the width of the image
+constexpr int get_array_index(int x, int y, int w) {
+  return w*y + x;
+}
+
+unsigned char Image::GetPixelValue(int x, int y) const {
+  return fImageData[get_array_index(x, y, fWidth)];
+}
