@@ -96,10 +96,7 @@ void write_svg(const TriangleCollection &triangles, const Image &im,
     tri.GetVertices2D(v);
 
     // write the triangle
-    outfile << "<polyline points=\"";
-    // outfile << round(v[0], 6) << "," << round(v[1], 6) << " ";
-    // outfile << round(v[2], 6) << "," << round(v[3], 6) << " ";
-    // outfile << round(v[4], 6) << "," << round(v[5], 6);
+    outfile << "<polygon points=\"";
 
     // large buffer
     char buffer[256];
