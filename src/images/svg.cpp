@@ -38,6 +38,37 @@ constexpr float ogl_y_to_image_y(float y) {
   return (1-y)/2;
 }
 
+void sample_texture(const Image &im, const float target_x, const float target_y, unsigned char &r, unsigned char &g, unsigned char &b) {
+  const int w = im.GetWidth();
+  const int h = im.GetHeight();
+  // COM is currently in OpenGL coords, i.e. [-1, 1] with (0,0) at
+  // the centre and the y-axis going upwards
+  // must adjust such that y-axis goes downwards, (0,0) is top left
+  // and (1,1) is bottom right
+  float conv_x = ogl_x_to_image_x(target_x);
+  float conv_y = ogl_y_to_image_y(target_y);
+  int x = conv_x * w;
+  int y = conv_y * h;
+
+  // validate the range of x and y
+  // makes this function slower, but safer
+  if (x < 0 || x >= w) {
+    using namespace std;
+    cerr << "Bad x coord: " << x << endl;
+    cerr << "Image width: " << w << endl;
+    throw out_of_range("write_svg: x coordinate out of expected range");
+  }
+  if (y < 0 || y >= h) {
+    using namespace std;
+    cerr << "Bad y coord: " << y << endl;
+    cerr << "Image height: "<< h << endl;
+    throw out_of_range("write_svg: y coordinated out of expected range");
+  }
+
+  // fetch the colour at the COM
+  im.GetPixelValue(x, y, r, g, b);
+}
+
 // write_svg: write an SVG based on a triangle collection and a
 // reference image
 void write_svg(const TriangleCollection &triangles, const Image &im,
@@ -53,43 +84,18 @@ void write_svg(const TriangleCollection &triangles, const Image &im,
   outfile << "<rect x=\"-1\" y=\"-1\" width=\"2\" height=\"2\" stroke=\"none\" fill=\"black\"/>";
 
   // add all the triangles in the collection
-  const int w = im.GetWidth();
-  const int h = im.GetHeight();
   for (int i = 0; i < triangles.GetNumTriangles(); ++i) {
     const Triangle tri = triangles.GetTriangle(i);
     // convert the COM to the image coordinates
     float com_x;
     float com_y;
     tri.GetCOM(com_x, com_y);
-    // COM is currently in OpenGL coords, i.e. [-1, 1] with (0,0) at
-    // the centre and the y-axis going upwards
-    // must adjust such that y-axis goes downwards, (0,0) is top left
-    // and (1,1) is bottom right
-    com_x = ogl_x_to_image_x(com_x);
-    com_y = ogl_y_to_image_y(com_y);
-    int x = com_x * w;
-    int y = com_y * h;
 
-    // validate the range of x and y
-    // makes this function slower, but safer
-    if (x < 0 || x >= w) {
-      using namespace std;
-      cerr << "Bad x coord: " << x << endl;
-      cerr << "Image width: " << w << endl;
-      throw out_of_range("write_svg: x coordinate out of expected range");
-    }
-    if (y < 0 || y >= h) {
-      using namespace std;
-      cerr << "Bad y coord: " << y << endl;
-      cerr << "Image height: "<< h << endl;
-      throw out_of_range("write_svg: y coordinated out of expected range");
-    }
-
-    // fetch the colour at the COM
+    // sample texture at COM
     unsigned char r;
     unsigned char g;
     unsigned char b;
-    im.GetPixelValue(x, y, r, g, b);
+    sample_texture(im, com_x, com_y, r, g, b);
 
     // get the vertices of this triangle
     float v[6];
