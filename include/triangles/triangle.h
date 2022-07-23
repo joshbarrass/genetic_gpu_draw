@@ -11,11 +11,13 @@ public:
   ~Triangle() {};
 
   void MoveCOM(const float, const float);
-  void GetCOM(float &x, float &y) {
+  void GetCOM(float &x, float &y) const {
     x = fCOM[0];
     y = fCOM[1];
   }
-  void GetArray(float output[TRIANGLE_STRIDE]);
+  void GetArray(float output[TRIANGLE_STRIDE]) const;
+  void GetVertices2D(float output[6]) const;
+  
 private:
   void calculateCOM();
   
