@@ -4,8 +4,11 @@
 
 #include "images/image.h"
 #include "triangles/collection.h"
+#include "textureClass.h"
 
 void write_svg(const TriangleCollection &, const Image &,
-               const char *path);
+               const char *filename, const bool AA=false);
+void write_svg(const TriangleCollection &, Texture &,
+               const char *filename, const bool AA=false);
 
 #endif
