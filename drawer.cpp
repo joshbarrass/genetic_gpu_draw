@@ -7,6 +7,7 @@
 #include <GLFW/glfw3.h>
 
 #include "images/image.h"
+#include "images/svg.h"
 #include "textureClass.h"
 #include "framebuffer.h"
 #include "main_class.h"
@@ -28,7 +29,7 @@ constexpr int PROGRESS_BAR_SIZE = 30;
 // uint8_t WINDOW_COLOR[4] = {0xdd, 0xcc, 0xff, 0xff};
 const double INITIAL_WINDOW_COLOR[4] = {0x00/255., 0x00/255., 0x00/255., 0xff/255.};
 
-Main::Main() : set_image_file(false), set_out_file(false), set_iterations(false), IMAGES_PER_GENERATION(1), set_resume_file(false), set_seed(false), FINISH_NOW(false), shouldStartRendering(false) {}
+Main::Main() : set_image_file(false), set_out_file(false), set_iterations(false), IMAGES_PER_GENERATION(1), set_resume_file(false), set_seed(false), set_svg_file(false), FINISH_NOW(false), shouldStartRendering(false) {}
 Main::~Main() {}
 
 // callback to resize the framebuffer if the user resizes the window
@@ -249,8 +250,17 @@ int Main::run() {
   glFinish();
   std::cerr << "Copying canvas to CPU..." << std::endl;
   Image fboutput(canvas);
-  std::cerr << "Saving..." << std::endl;
+  std::cerr << "Saving PNG..." << std::endl;
   fboutput.Save(OUT_FILE);
+
+  if (set_svg_file) {
+    if (!FINISH_NOW) {
+      std::cerr << "Saving SVG..." << std::endl;
+      write_svg(Triangles, Image(IMAGE_FILE), SVG_FILE.c_str());
+    } else {
+      std::cerr << "Cannot save SVG; program interrupted" << std::endl;
+    }
+  }
 
   #ifdef BUILD_DEBUG
   std::cerr << "Saving cache..." << std::endl;

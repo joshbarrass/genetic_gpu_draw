@@ -60,27 +60,38 @@ void TriangleCollection::Randomise_i(int i) {
   t.GetArray(&fTriangles[triangle]);
 }
 
-void TriangleCollection::Draw() {
+void TriangleCollection::Draw() const {
   Draw(fNumTriangles);
 }
 
-void TriangleCollection::Draw(const int n) {
+void TriangleCollection::Draw(const int n) const {
   glBindVertexArray(VAO);
   glBindBuffer(GL_ARRAY_BUFFER, VBO);
   glDrawArrays(GL_TRIANGLES, 0, 3*n);
 }
 
-void TriangleCollection::DrawOne(const int i) {
+void TriangleCollection::DrawOne(const int i) const {
   glBindVertexArray(VAO);
   glBindBuffer(GL_ARRAY_BUFFER, VBO);
   glDrawArrays(GL_TRIANGLES, 3*i, 3);
 }
 
-void TriangleCollection::GetTriangle(int i, float *vertices_out) {
+// get a triangle directly from the buffer. This will be
+// TRIANGLE_STRIDE floats. For a more friendly function, use
+// GetTriangle(int)
+void TriangleCollection::GetTriangle(int i, float *vertices_out) const {
   std::copy(fTriangles + i*TRIANGLE_STRIDE, fTriangles + i*TRIANGLE_STRIDE + TRIANGLE_STRIDE, vertices_out);
 }
 
-void TriangleCollection::PrintVBOContents() {
+Triangle TriangleCollection::GetTriangle(int i) const {
+  // fetch the internal representation of the triangle
+  float internal[TRIANGLE_STRIDE];
+  GetTriangle(i, internal);
+
+  return Triangle(internal, true);
+}
+
+void TriangleCollection::PrintVBOContents() const {
   float data[fNumTriangles * TRIANGLE_STRIDE];
   glBindVertexArray(VAO);
   glGetBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(float)*fNumTriangles*TRIANGLE_STRIDE, data);

@@ -28,6 +28,8 @@ private:
   bool set_resume_file;
   int SEED;
   bool set_seed;
+  std::string SVG_FILE;
+  bool set_svg_file;
 
   bool shouldStartRendering;
 
