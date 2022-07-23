@@ -7,8 +7,8 @@
 #include "textureClass.h"
 
 void write_svg(const TriangleCollection &, const Image &,
-               const char *filename);
+               const char *filename, const bool AA=false);
 void write_svg(const TriangleCollection &, Texture &,
-               const char *filename);
+               const char *filename, const bool AA=false);
 
 #endif
