@@ -336,7 +336,7 @@ int Main::run() {
 }
 
 int main(int argc, char **argv) {
-  Main program = Main();;
+  Main program = Main();
   if (int err = program.parseArgs(argc, argv); err != 0) {
     return err;
   }

@@ -41,7 +41,7 @@ int Main::parseArgs(int argc, char **argv) {
       this_file = std::filesystem::path(argv[0]);
       std::fprintf(stderr, HELP_TEXT_FORMAT.c_str(),
                    this_file.filename().u8string().c_str());
-      return 0;
+      return -1;
     case 'n':
       ITERATIONS = atoi(optarg);
       set_iterations = true;
