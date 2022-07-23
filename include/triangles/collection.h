@@ -19,6 +19,9 @@ public:
   void DrawOne(const int) const;
 
   void PrintVBOContents() const;
+
+  int GetNumTriangles() const { return fNumTriangles; }
+
 private:
   float *fTriangles;
   int fNumTriangles;
