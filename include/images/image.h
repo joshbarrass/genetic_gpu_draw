@@ -19,18 +19,18 @@ public:
   Image(const FramebufferCache&);
   ~Image();
 
-  void Save(const char *filename);
-  void Save(const std::string filename);
-  void Save(const std::filesystem::path filename);
+  void Save(const char *filename) const;
+  void Save(const std::string filename) const;
+  void Save(const std::filesystem::path filename) const;
 
-  int GetWidth() { return fWidth; }
-  int GetHeight() { return fHeight; }
+  int GetWidth() const { return fWidth; }
+  int GetHeight() const { return fHeight; }
 
   // used for saving, but could be overridden
   bool FlipVerticallyOnWrite;
 private:
   void construct(const char *filename);
-  void save_image(const char *filename);
+  void save_image(const char *filename) const;
 
   // used on destruction for proper cleanup
   bool fUsedStb;
