@@ -94,10 +94,6 @@ void write_svg(const TriangleCollection &triangles, const Image &im,
     // get the vertices of this triangle
     float v[6];
     tri.GetVertices2D(v);
-    {
-      using namespace std;
-      cerr << "Verts: " << v[0] << " " << v[1] << " " << v[2] << " " << v[3] << " " << v[4] << " " << v[5] << endl;
-    }
 
     // write the triangle
     outfile << "<polyline points=\"";
