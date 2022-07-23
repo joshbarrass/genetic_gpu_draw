@@ -70,12 +70,13 @@ Image::Image(const FramebufferCache &fbcache) {
 }
 
 // convert an x/y corrd to an array index based on the width of the image
-constexpr int get_array_index(int x, int y, int w) {
-  return w*y + x;
+// note: we use h-y here because stb stores the y axis flipped
+constexpr int get_array_index(int x, int y, int w, int h) {
+  return 3*w*(h-y) + 3*x;
 }
 
 void Image::GetPixelValue(int x, int y, unsigned char &r, unsigned char &g, unsigned char &b) const {
-  const int i = get_array_index(x, y, fWidth);
+  const int i = get_array_index(x, y, fWidth, fHeight);
   r = fImageData[i];
   g = fImageData[i+1];
   b = fImageData[i+2];
