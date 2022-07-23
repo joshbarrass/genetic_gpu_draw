@@ -9,7 +9,7 @@ Usage:
   %1$s --help
 
 -f --target          Path to image file to aim for
--o --output          Path to output final image to
+-o --output          Path to output final image to (only PNG supported)
 -v --svg             Path to output SVG to
 -n --triangles       Number of triangles to draw
 -g --per-generation  Number of triangles to attempt to draw each generation

@@ -250,7 +250,7 @@ int Main::run() {
   glFinish();
   std::cerr << "Copying canvas to CPU..." << std::endl;
   Image fboutput(canvas);
-  std::cerr << "Saving..." << std::endl;
+  std::cerr << "Saving PNG..." << std::endl;
   fboutput.Save(OUT_FILE);
 
   if (set_svg_file) {
