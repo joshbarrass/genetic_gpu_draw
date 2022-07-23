@@ -256,7 +256,8 @@ int Main::run() {
   if (set_svg_file) {
     if (!FINISH_NOW) {
       std::cerr << "Saving SVG..." << std::endl;
-      write_svg(Triangles, Image(IMAGE_FILE), SVG_FILE.c_str());
+      // write_svg(Triangles, Image(IMAGE_FILE), SVG_FILE.c_str());
+      write_svg(Triangles, target, SVG_FILE.c_str());
     } else {
       std::cerr << "Cannot save SVG; program interrupted" << std::endl;
     }
