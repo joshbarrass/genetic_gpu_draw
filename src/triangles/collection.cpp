@@ -88,7 +88,7 @@ Triangle TriangleCollection::GetTriangle(int i) const {
   float internal[TRIANGLE_STRIDE];
   GetTriangle(i, internal);
 
-  return Triangle(internal);
+  return Triangle(internal, true);
 }
 
 void TriangleCollection::PrintVBOContents() const {

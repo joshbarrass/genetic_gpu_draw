@@ -8,10 +8,29 @@
 // constexpr int perCoord = 2;
 // constexpr int arrayLength = 3*perCoord;
 
+// Initialise a triangle from an array.
+// The format of this array varies based on the value of is_internal
+//
+// is_internal = false (default, for backward compatibility) dictates
+// that the vertices array contains 9 floats, corresponding to three
+// 3D vectors representing the coordinates in 3D space of the
+// triangle's vertices.
+//
+// is_internal = true dictates that the vertices array contains
+// TRIANGLE_STRIDE floats, interpreted as the internal representation
+// of a triangle as outputted by GetArray.
+Triangle::Triangle(const float *vertices, const bool is_internal) {
+  if (is_internal) {
+    copy_array_as_internal(vertices);
+    return;
+  }
+  copy_array_as_coords(vertices);
+}
+
 // Construct a triangle from the internal format, as outputted by
 // GetArray. This method shouild always be kept up-to-date with the
 // internal structure of the triangles
-Triangle::Triangle(const float vertices[TRIANGLE_STRIDE]) {
+void Triangle::copy_array_as_internal(const float vertices[TRIANGLE_STRIDE]) {
   // copy the three vertices
   std::copy(&vertices[0], &vertices[0] + 3, &fVertices[0]);
   std::copy(&vertices[0] + TRIANGLE_STRIDE, &vertices[0] + TRIANGLE_STRIDE + 3, &fVertices[3]);
@@ -22,7 +41,7 @@ Triangle::Triangle(const float vertices[TRIANGLE_STRIDE]) {
   fCOM[1] = vertices[4];
 }
 
-Triangle::Triangle(const float vertices[9]) {
+void Triangle::copy_array_as_coords(const float vertices[9]) {
   // copy vertices to internal
   std::copy(&vertices[0], &vertices[0] + 9, &fVertices[0]);
 

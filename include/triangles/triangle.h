@@ -5,8 +5,7 @@
 
 class Triangle {
 public:
-  Triangle(const float[TRIANGLE_STRIDE]);
-  Triangle(const float[9]);
+  Triangle(const float *vertices, const bool is_internal=false);
   Triangle(const float);
   ~Triangle() {};
 
@@ -20,6 +19,8 @@ public:
   
 private:
   void calculateCOM();
+  void copy_array_as_coords(const float vertices[9]);
+  void copy_array_as_internal(const float vertices[TRIANGLE_STRIDE]);
   
   float fCOM[2];
   float fVertices[9];
