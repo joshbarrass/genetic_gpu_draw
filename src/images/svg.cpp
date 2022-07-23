@@ -16,6 +16,8 @@
 #include <stdlib.h>
 #include "triangles/triangle.h"
 #include "images/svg.h"
+#include "textureClass.h"
+#include "texturesampler/sampler.h"
 
 const std::string SVG_header("<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\"?>\n<!DOCTYPE svg PUBLIC \"-//W3C//DTD SVG 1.1//EN\" \"http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd\">\n<svg preserveAspectRatio=\"none\" ");
 const std::string SVG_header_end(" xmlns=\"http://www.w3.org/2000/svg\" xmlns:xlink=\"http://www.w3.org/1999/xlink\">");
@@ -67,6 +69,10 @@ void sample_texture(const Image &im, const float target_x, const float target_y,
 
   // fetch the colour at the COM
   im.GetPixelValue(x, y, r, g, b);
+}
+
+void sample_texture(TextureSampler &sampler, const float x, const float y, float &r, float &g, float &b) {
+  sampler.SampleTexture(x, y, r, g, b);
 }
 
 void write_polygon(std::ofstream &outfile, const float verts[6],
@@ -125,6 +131,43 @@ void write_svg(const TriangleCollection &triangles, const Image &im,
 
     // write the triangle
     write_polygon(outfile, v, r, g, b);
+  }
+
+  write_svg_footer(outfile);
+
+  outfile.close();
+}
+
+// write_svg based on a triangle collection and a loaded texture
+void write_svg(const TriangleCollection &triangles, Texture &tex,
+               const char *filename) {
+  std::ofstream outfile(filename);
+
+  write_svg_header(outfile, tex.GetWidth(), tex.GetHeight());
+
+  // setup the texture sampler
+  TextureSampler sampler(tex);
+  
+  // add all the triangles in the collection
+  for (int i = 0; i < triangles.GetNumTriangles(); ++i) {
+    const Triangle tri = triangles.GetTriangle(i);
+    // convert the COM to the image coordinates
+    float com_x;
+    float com_y;
+    tri.GetCOM(com_x, com_y);
+
+    // sample texture at COM
+    float r;
+    float g;
+    float b;
+    sample_texture(sampler, com_x, com_y, r, g, b);
+
+    // get the vertices of this triangle
+    float v[6];
+    tri.GetVertices2D(v);
+
+    // write the triangle
+    write_polygon(outfile, v, 255*r, 255*g, 255*b);
   }
 
   write_svg_footer(outfile);
