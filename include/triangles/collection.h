@@ -12,13 +12,13 @@ public:
   void RandomiseAll();
   void Randomise_i(int);
 
-  void GetTriangle(int, float*);
+  void GetTriangle(int, float*) const;
 
-  void Draw();
-  void Draw(const int);
-  void DrawOne(const int);
+  void Draw() const;
+  void Draw(const int) const;
+  void DrawOne(const int) const;
 
-  void PrintVBOContents();
+  void PrintVBOContents() const;
 private:
   float *fTriangles;
   int fNumTriangles;
