@@ -9,7 +9,8 @@ class Shader {
   GLuint getUniformLocation(const std::string &name) const;
  public:
   GLuint ID; // shader program ID
-  
+
+  Shader() {};
   Shader(const char* vertexShaderPath, const char* fragShaderPath);
   void use();
 

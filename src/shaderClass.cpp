@@ -39,7 +39,7 @@ Shader::Shader(const char *vertexShaderPath, const char *fragShaderPath) {
     fragSrc = reader.str();
     // don't bother clearing reader as we won't use it again
   } catch(std::ifstream::failure e) {
-    std::cerr << "ERROR::SHADER::FAILED_TO_READ_FILE: '" << e.what() << "'; errno " << errno << " '" << strerror(errno) << std::endl;
+    std::cerr << "ERROR::SHADER::FAILED_TO_READ_FILE: '" << e.what() << "'; errno " << errno << " '" << strerror(errno) << "'; filepaths: '" << vertexShaderPath << "', '" << fragShaderPath << "';" << std::endl;
     throw e;
   }
 

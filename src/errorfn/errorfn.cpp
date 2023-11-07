@@ -2,6 +2,9 @@
 #include "framebuffer.h"
 #include "consts.h"
 
+#include <filesystem>
+#include "exepath.h"
+
 // quad that fills the screen
 const float quadVerts[] = {
   -1.0, 1.0, // top left
@@ -18,7 +21,16 @@ ErrorFn::~ErrorFn() {}
 
 ErrorFn::ErrorFn(Texture & target, FramebufferTexture &canvas)
   : fTarget(target),
-    fCanvas(canvas), fPixelDifferences(), fSummed(), fDifferenceShader("shaders/simpleVertShader.glsl", "shaders/difference_shader.glsl"), fSummationShader("shaders/simpleVertShader.glsl", "shaders/summation_shader_columns.glsl") {
+    fCanvas(canvas), fPixelDifferences(), fSummed(), fDifferenceShader(), fSummationShader() {
+  // load shaders
+  char exepathBuf[256];
+  const size_t bufLen = sizeof(exepathBuf);
+  getExecutablePath(exepathBuf, bufLen);
+  const std::filesystem::path exepath(exepathBuf);
+  const std::filesystem::path exedir = exepath.parent_path();
+  fDifferenceShader = Shader((exedir / "shaders/simpleVertShader.glsl").c_str(), (exedir / "shaders/difference_shader.glsl").c_str());
+  fSummationShader = Shader((exedir / "shaders/simpleVertShader.glsl").c_str(), (exedir / "shaders/summation_shader_columns.glsl").c_str());
+  
   // create VBO and VAO
   glGenBuffers(1, &VBO);
   glGenVertexArrays(1, &VAO);

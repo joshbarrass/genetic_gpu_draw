@@ -1,6 +1,9 @@
 #include "framebuffer_cache.h"
 #include "framebuffer.h"
 #include "consts.h"
+
+#include <filesystem>
+#include "exepath.h"
  
 // TODO: create a single shared quad for both the cache and the error
 // function?
@@ -15,7 +18,15 @@ const float quadVerts[] = {
   1.0, 1.0 // top right
 };
 
-FramebufferCache::FramebufferCache(FramebufferTexture &to_cache) : fFramebuffer(to_cache), fPassthroughShader("./shaders/simpleVertShader.glsl", "./shaders/passthroughFragShader.glsl") {
+FramebufferCache::FramebufferCache(FramebufferTexture &to_cache) : fFramebuffer(to_cache), fPassthroughShader() {
+  // load shaders
+  char exepathBuf[256];
+  const size_t bufLen = sizeof(exepathBuf);
+  getExecutablePath(exepathBuf, bufLen);
+  const std::filesystem::path exepath(exepathBuf);
+  const std::filesystem::path exedir = exepath.parent_path();
+  fPassthroughShader = Shader((exedir / "shaders/simpleVertShader.glsl").c_str(), (exedir / "shaders/passthroughFragShader.glsl").c_str());
+  
   // create a new texture
   glGenTextures(1, &Tex);
   glBindTexture(GL_TEXTURE_2D, Tex);

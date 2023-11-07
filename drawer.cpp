@@ -19,6 +19,7 @@
 #include "consts.h"
 #include "errorfn/errorfn.h"
 #include "framebuffer_cache.h"
+#include "exepath.h"
 
 #ifdef BUILD_DEBUG
 #include <stb/stb_image_write.h>
@@ -161,7 +162,14 @@ int Main::run() {
   #endif
 
   // build the shader program
-  Shader simpleShader("./shaders/triangle_vert_shader.glsl", "./shaders/simpleFragShader.glsl");
+  char exepathBuf[256];
+  const size_t bufLen = sizeof(exepathBuf);
+  getExecutablePath(exepathBuf, bufLen);
+  const std::filesystem::path exepath(exepathBuf);
+  const std::filesystem::path exedir = exepath.parent_path();
+  const std::filesystem::path vert_shader_path = exedir / "shaders/triangle_vert_shader.glsl";
+  const std::filesystem::path frag_shader_path = exedir / "shaders/simpleFragShader.glsl";
+  Shader simpleShader(vert_shader_path.c_str(), frag_shader_path.c_str());
 
   glClearColorArray(INITIAL_WINDOW_COLOR);
 
